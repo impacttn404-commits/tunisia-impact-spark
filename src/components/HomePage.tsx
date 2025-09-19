@@ -3,7 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TrendingUp, Users, Trophy, Zap, ArrowRight } from "lucide-react";
 
-export const HomePage = () => {
+interface HomePageProps {
+  onAuthClick?: () => void;
+}
+
+export const HomePage = ({ onAuthClick }: HomePageProps) => {
   return (
     <div className="pb-20 bg-gradient-to-br from-primary via-primary-light to-primary">
       {/* Hero Section */}
@@ -60,7 +64,10 @@ export const HomePage = () => {
         </div>
 
         <div className="space-y-4">
-          <Card className="p-6 bg-white/95 backdrop-blur border-0 shadow-lg">
+          <Card 
+            className="p-6 bg-white/95 backdrop-blur border-0 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+            onClick={onAuthClick}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -77,7 +84,10 @@ export const HomePage = () => {
             </div>
           </Card>
 
-          <Card className="p-6 bg-white/95 backdrop-blur border-0 shadow-lg">
+          <Card 
+            className="p-6 bg-white/95 backdrop-blur border-0 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+            onClick={onAuthClick}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 rounded-full bg-token/10 flex items-center justify-center">
@@ -94,7 +104,10 @@ export const HomePage = () => {
             </div>
           </Card>
 
-          <Card className="p-6 bg-white/95 backdrop-blur border-0 shadow-lg">
+          <Card 
+            className="p-6 bg-white/95 backdrop-blur border-0 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+            onClick={onAuthClick}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 rounded-full bg-info/10 flex items-center justify-center">

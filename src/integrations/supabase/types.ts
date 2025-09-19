@@ -14,7 +14,345 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      challenges: {
+        Row: {
+          created_at: string
+          created_by: string
+          criteria_impact: number | null
+          criteria_innovation: number | null
+          criteria_sustainability: number | null
+          criteria_viability: number | null
+          currency: string | null
+          current_participants: number | null
+          description: string
+          end_date: string | null
+          id: string
+          max_participants: number | null
+          participation_fee: number | null
+          prize_amount: number
+          start_date: string | null
+          status: Database["public"]["Enums"]["challenge_status"] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          criteria_impact?: number | null
+          criteria_innovation?: number | null
+          criteria_sustainability?: number | null
+          criteria_viability?: number | null
+          currency?: string | null
+          current_participants?: number | null
+          description: string
+          end_date?: string | null
+          id?: string
+          max_participants?: number | null
+          participation_fee?: number | null
+          prize_amount: number
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["challenge_status"] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          criteria_impact?: number | null
+          criteria_innovation?: number | null
+          criteria_sustainability?: number | null
+          criteria_viability?: number | null
+          currency?: string | null
+          current_participants?: number | null
+          description?: string
+          end_date?: string | null
+          id?: string
+          max_participants?: number | null
+          participation_fee?: number | null
+          prize_amount?: number
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["challenge_status"] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenges_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      evaluations: {
+        Row: {
+          created_at: string
+          evaluator_id: string
+          feedback: string | null
+          id: string
+          impact_score: number | null
+          innovation_score: number | null
+          overall_score: number | null
+          project_id: string
+          sustainability_score: number | null
+          tokens_earned: number | null
+          viability_score: number | null
+        }
+        Insert: {
+          created_at?: string
+          evaluator_id: string
+          feedback?: string | null
+          id?: string
+          impact_score?: number | null
+          innovation_score?: number | null
+          overall_score?: number | null
+          project_id: string
+          sustainability_score?: number | null
+          tokens_earned?: number | null
+          viability_score?: number | null
+        }
+        Update: {
+          created_at?: string
+          evaluator_id?: string
+          feedback?: string | null
+          id?: string
+          impact_score?: number | null
+          innovation_score?: number | null
+          overall_score?: number | null
+          project_id?: string
+          sustainability_score?: number | null
+          tokens_earned?: number | null
+          viability_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evaluations_evaluator_id_fkey"
+            columns: ["evaluator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "evaluations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_products: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          price_tnd: number | null
+          price_tokens: number | null
+          seller_id: string
+          stock_quantity: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          price_tnd?: number | null
+          price_tokens?: number | null
+          seller_id: string
+          stock_quantity?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          price_tnd?: number | null
+          price_tokens?: number | null
+          seller_id?: string
+          stock_quantity?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_products_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          badge_level: Database["public"]["Enums"]["badge_level"] | null
+          company_name: string | null
+          created_at: string
+          email: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          tokens_balance: number | null
+          total_evaluations: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          badge_level?: Database["public"]["Enums"]["badge_level"] | null
+          company_name?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          tokens_balance?: number | null
+          total_evaluations?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          badge_level?: Database["public"]["Enums"]["badge_level"] | null
+          company_name?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          tokens_balance?: number | null
+          total_evaluations?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          average_rating: number | null
+          budget: number | null
+          challenge_id: string | null
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          is_winner: boolean | null
+          media_urls: string[] | null
+          objectives: string | null
+          sector: string
+          status: Database["public"]["Enums"]["project_status"] | null
+          title: string
+          total_evaluations: number | null
+          updated_at: string
+        }
+        Insert: {
+          average_rating?: number | null
+          budget?: number | null
+          challenge_id?: string | null
+          created_at?: string
+          created_by: string
+          description: string
+          id?: string
+          is_winner?: boolean | null
+          media_urls?: string[] | null
+          objectives?: string | null
+          sector: string
+          status?: Database["public"]["Enums"]["project_status"] | null
+          title: string
+          total_evaluations?: number | null
+          updated_at?: string
+        }
+        Update: {
+          average_rating?: number | null
+          budget?: number | null
+          challenge_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          is_winner?: boolean | null
+          media_urls?: string[] | null
+          objectives?: string | null
+          sector?: string
+          status?: Database["public"]["Enums"]["project_status"] | null
+          title?: string
+          total_evaluations?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      token_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +361,20 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      badge_level: "bronze" | "silver" | "gold" | "platinum"
+      challenge_status:
+        | "draft"
+        | "pending_approval"
+        | "active"
+        | "completed"
+        | "cancelled"
+      project_status:
+        | "draft"
+        | "submitted"
+        | "under_evaluation"
+        | "winner"
+        | "rejected"
+      user_role: "investor" | "projectHolder" | "evaluator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +501,23 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      badge_level: ["bronze", "silver", "gold", "platinum"],
+      challenge_status: [
+        "draft",
+        "pending_approval",
+        "active",
+        "completed",
+        "cancelled",
+      ],
+      project_status: [
+        "draft",
+        "submitted",
+        "under_evaluation",
+        "winner",
+        "rejected",
+      ],
+      user_role: ["investor", "projectHolder", "evaluator"],
+    },
   },
 } as const
