@@ -8,35 +8,64 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 98%;
+    --foreground: 210 10% 23%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 210 10% 23%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 210 10% 23%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Impact Tunisia Brand Colors - Ecological Green Theme */
+    --primary: 122 39% 49%;  /* #2e7d32 - Main ecological green */
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary-foreground: 210 10% 23%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
     --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent-foreground: 210 10% 23%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 122 39% 49%;
 
-    --radius: 0.5rem;
+    /* Custom Impact Tunisia Design Tokens */
+    --primary-light: 122 39% 65%;  /* Lighter green for hover states */
+    --primary-dark: 122 39% 35%;   /* Darker green for active states */
+    
+    /* Status Colors */
+    --success: 122 39% 49%;
+    --warning: 38 92% 50%;  /* Orange for tokens/warnings */
+    --info: 210 100% 56%;
+    
+    /* Token System Colors */
+    --token: 38 92% 50%;  /* Orange for token display */
+    --token-bg: 38 92% 95%;  /* Light orange background */
+    
+    /* Status Badge Colors */
+    --bronze: 25 76% 31%;
+    --silver: 0 0% 63%;
+    --gold: 45 93% 47%;
+    --platinum: 240 21% 15%;
+    
+    /* Card Styles */
+    --card-shadow: 0 4px 12px -2px hsl(122 39% 49% / 0.1);
+    --card-hover-shadow: 0 8px 24px -4px hsl(122 39% 49% / 0.15);
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
+    --gradient-hero: linear-gradient(135deg, hsl(122 39% 49%) 0%, hsl(122 39% 35%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(0 0% 98%) 100%);
+    
+    --radius: 1rem;
 
     --sidebar-background: 0 0% 98%;
 

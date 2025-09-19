@@ -22,6 +22,8 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          light: "hsl(var(--primary-light))",
+          dark: "hsl(var(--primary-dark))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -46,6 +48,20 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        // Impact Tunisia Custom Colors
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
+        info: "hsl(var(--info))",
+        token: {
+          DEFAULT: "hsl(var(--token))",
+          bg: "hsl(var(--token-bg))",
+        },
+        status: {
+          bronze: "hsl(var(--bronze))",
+          silver: "hsl(var(--silver))",
+          gold: "hsl(var(--gold))",
+          platinum: "hsl(var(--platinum))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
