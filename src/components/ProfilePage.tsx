@@ -3,8 +3,29 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Settings, Star, TrendingUp, Coins, Trophy, Award, Users } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+
+const roleLabels = {
+  evaluator: 'Évaluateur',
+  projectHolder: 'Porteur de Projet', 
+  investor: 'Investisseur'
+};
 
 export const ProfilePage = () => {
+  const { profile, signOut } = useAuth();
+
+  if (!profile) {
+    return (
+      <div className="pb-20 px-6 pt-12">
+        <p className="text-center text-muted-foreground">Chargement du profil...</p>
+      </div>
+    );
+  }
+
+  const getInitials = (firstName?: string, lastName?: string) => {
+    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
+  };
+
   return (
     <div className="pb-20">
       {/* Header */}
@@ -12,13 +33,17 @@ export const ProfilePage = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
-              <span className="text-white font-bold text-lg">MK</span>
+              <span className="text-white font-bold text-lg">
+                {getInitials(profile.first_name, profile.last_name)}
+              </span>
             </div>
             <div>
-              <h1 className="text-xl font-bold">Mohamed Karray</h1>
-              <p className="text-sm text-muted-foreground">mohamed@example.com</p>
+              <h1 className="text-xl font-bold">
+                {profile.first_name} {profile.last_name}
+              </h1>
+              <p className="text-sm text-muted-foreground">{profile.email}</p>
               <Badge className="bg-status-gold/10 text-status-gold border-status-gold/20 mt-1">
-                Évaluateur
+                {roleLabels[profile.role]}
               </Badge>
             </div>
           </div>
@@ -45,7 +70,7 @@ export const ProfilePage = () => {
             <div className="flex items-center space-x-3">
               <Coins className="w-8 h-8 text-token" />
               <div>
-                <div className="text-2xl font-bold text-token">750</div>
+                <div className="text-2xl font-bold text-token">{profile.tokens_balance}</div>
                 <p className="text-sm text-muted-foreground">tokens</p>
               </div>
             </div>
@@ -89,21 +114,21 @@ export const ProfilePage = () => {
         <div className="grid grid-cols-3 gap-4 mb-6">
           <StatsCard
             icon={<Trophy className="w-5 h-5 text-primary" />}
-            value="23"
+            value={profile.total_evaluations.toString()}
             label="Projets évalués"
             trend="+12%"
           />
           <StatsCard
             icon={<Coins className="w-5 h-5 text-token" />}
-            value="156"
-            label="Tokens gagnés ce mois"
+            value={profile.tokens_balance.toString()}
+            label="Tokens disponibles"
             trend="+8%"
           />
           <StatsCard
             icon={<TrendingUp className="w-5 h-5 text-success" />}
-            value="#7"
-            label="Position classement"
-            trend="↑ 12"
+            value={profile.badge_level?.toUpperCase() || 'BRONZE'}
+            label="Niveau badge"
+            trend="↑ 1"
           />
         </div>
       </div>
