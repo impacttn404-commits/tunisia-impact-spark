@@ -2,8 +2,10 @@ import { StatsCard } from "./StatsCard";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Star, TrendingUp, Coins, Trophy, Award, Users } from "lucide-react";
+import { Settings, Star, TrendingUp, Coins, Trophy, Award, Users, History } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
+import { TokenHistoryPage } from "./TokenHistoryPage";
 
 const roleLabels = {
   evaluator: 'Évaluateur',
@@ -13,6 +15,7 @@ const roleLabels = {
 
 export const ProfilePage = () => {
   const { profile, signOut } = useAuth();
+  const [showTokenHistory, setShowTokenHistory] = useState(false);
 
   if (!profile) {
     return (
@@ -20,6 +23,10 @@ export const ProfilePage = () => {
         <p className="text-center text-muted-foreground">Chargement du profil...</p>
       </div>
     );
+  }
+
+  if (showTokenHistory) {
+    return <TokenHistoryPage onBack={() => setShowTokenHistory(false)} />;
   }
 
   const getInitials = (firstName?: string, lastName?: string) => {
@@ -66,13 +73,23 @@ export const ProfilePage = () => {
             </div>
           </Card>
           
-          <Card className="p-6 bg-gradient-to-br from-token/5 to-token/10 border-token/20">
-            <div className="flex items-center space-x-3">
-              <Coins className="w-8 h-8 text-token" />
-              <div>
-                <div className="text-2xl font-bold text-token">{profile.tokens_balance}</div>
-                <p className="text-sm text-muted-foreground">tokens</p>
+          <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Coins className="w-8 h-8 text-primary" />
+                <div>
+                  <div className="text-2xl font-bold text-primary">{profile.tokens_balance}</div>
+                  <p className="text-sm text-muted-foreground">tokens</p>
+                </div>
               </div>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowTokenHistory(true)}
+                className="text-primary hover:text-primary-dark"
+              >
+                <History className="w-4 h-4" />
+              </Button>
             </div>
           </Card>
         </div>
