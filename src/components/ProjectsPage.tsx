@@ -7,12 +7,23 @@ import { useProjects } from "@/hooks/useProjects";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { CreateProjectModal } from "./CreateProjectModal";
+import { ProjectDetailModal } from "./ProjectDetailModal";
+import type { Database } from '@/integrations/supabase/types';
+
+type Project = Database['public']['Tables']['projects']['Row'];
 
 export const ProjectsPage = () => {
   const { projects, loading } = useProjects();
   const { profile } = useAuth();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const handleProjectClick = (project: Project) => {
+    setSelectedProject(project);
+    setShowDetailModal(true);
+  };
 
   const getStatusBadge = (status: string | null) => {
     switch (status) {
@@ -138,7 +149,11 @@ export const ProjectsPage = () => {
           </Card>
         ) : (
           filteredProjects.map((project) => (
-            <Card key={project.id} className="overflow-hidden shadow-lg border-0">
+            <Card 
+              key={project.id} 
+              className="overflow-hidden shadow-lg border-0 cursor-pointer hover:shadow-xl transition-shadow"
+              onClick={() => handleProjectClick(project)}
+            >
               <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 relative">
                 {getStatusBadge(project.status)}
                 <div className="absolute top-4 right-4">
@@ -215,6 +230,13 @@ export const ProjectsPage = () => {
       <CreateProjectModal 
         open={showCreateModal}
         onOpenChange={setShowCreateModal}
+      />
+
+      {/* Project Detail Modal */}
+      <ProjectDetailModal
+        open={showDetailModal}
+        onOpenChange={setShowDetailModal}
+        project={selectedProject}
       />
     </div>
   );

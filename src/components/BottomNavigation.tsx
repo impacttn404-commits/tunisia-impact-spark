@@ -1,4 +1,4 @@
-import { Home, Search, Trophy, ShoppingBag, User } from "lucide-react";
+import { Home, Search, Trophy, ShoppingBag, User, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BottomNavigationProps {
@@ -10,6 +10,7 @@ const navItems = [
   { id: "home", icon: Home, label: "Accueil" },
   { id: "projects", icon: Search, label: "Projets" },
   { id: "challenges", icon: Trophy, label: "Challenges" },
+  { id: "evaluations", icon: Star, label: "Évaluations" },
   { id: "marketplace", icon: ShoppingBag, label: "Marketplace" },
   { id: "profile", icon: User, label: "Profil" },
 ];

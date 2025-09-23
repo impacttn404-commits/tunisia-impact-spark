@@ -6,6 +6,7 @@ import { ChallengesPage } from "./ChallengesPage";
 import { ProjectsPage } from "./ProjectsPage";
 import { MarketplacePage } from "./MarketplacePage";
 import { ProfilePage } from "./ProfilePage";
+import { EvaluationsPage } from "./EvaluationsPage";
 import { useAuth } from "@/hooks/useAuth";
 import { Users, Target, Award, ShoppingCart, UserCircle, TrendingUp, Star, LogOut } from "lucide-react";
 import { useState } from "react";
@@ -51,6 +52,8 @@ export const HomePage = () => {
         return <MarketplacePage />;
       case "profile":
         return <ProfilePage />;
+      case "evaluations":
+        return <EvaluationsPage />;
       default:
         return (
           <div className="container mx-auto px-4 py-8 space-y-8">
@@ -173,6 +176,19 @@ export const HomePage = () => {
                         <ShoppingCart className="w-4 h-4 text-accent" />
                       </div>
                       <span className="text-sm font-medium">Marketplace</span>
+                    </div>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-auto p-4 justify-start hover:bg-primary/10"
+                    onClick={() => setActiveTab("evaluations")}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 rounded-full bg-warning/10">
+                        <Star className="w-4 h-4 text-warning" />
+                      </div>
+                      <span className="text-sm font-medium">Mes évaluations</span>
                     </div>
                   </Button>
                   
