@@ -7,8 +7,10 @@ import { ProjectsPage } from "./ProjectsPage";
 import { MarketplacePage } from "./MarketplacePage";
 import { ProfilePage } from "./ProfilePage";
 import { EvaluationsPage } from "./EvaluationsPage";
+import { AnalyticsDashboard } from "./AnalyticsDashboard";
 import { useAuth } from "@/hooks/useAuth";
-import { Users, Target, Award, ShoppingCart, UserCircle, TrendingUp, Star, LogOut } from "lucide-react";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { Users, Target, Award, ShoppingCart, UserCircle, TrendingUp, Star, LogOut, BarChart3 } from "lucide-react";
 import { useState } from "react";
 
 const roleLabels = {
@@ -40,6 +42,7 @@ const userTypes = [
 
 export const HomePage = () => {
   const { profile, signOut } = useAuth();
+  const { platformStats, loading } = useAnalytics();
   const [activeTab, setActiveTab] = useState("home");
 
   const renderContent = () => {
@@ -54,6 +57,8 @@ export const HomePage = () => {
         return <ProfilePage />;
       case "evaluations":
         return <EvaluationsPage />;
+      case "analytics":
+        return <AnalyticsDashboard />;
       default:
         return (
           <div className="container mx-auto px-4 py-8 space-y-8">
@@ -109,27 +114,27 @@ export const HomePage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <StatsCard
                 icon={<Target className="w-6 h-6 text-primary" />}
-                value="42"
+                value={loading ? "..." : platformStats?.activeProjects?.toString() || "0"}
                 label="Projets actifs"
-                trend="+12%"
+                trend={loading ? "" : `${platformStats?.totalProjects || 0} total`}
               />
               <StatsCard
                 icon={<Users className="w-6 h-6 text-secondary" />}
-                value="128"
+                value={loading ? "..." : platformStats?.totalEvaluators?.toString() || "0"}
                 label="Évaluateurs"
-                trend="+8%"
+                trend={loading ? "" : `${platformStats?.totalEvaluations || 0} évaluations`}
               />
               <StatsCard
                 icon={<Award className="w-6 h-6 text-success" />}
-                value="15"
-                label="Challenges"
-                trend="+3"
+                value={loading ? "..." : platformStats?.activeChallenges?.toString() || "0"}
+                label="Challenges actifs"
+                trend={loading ? "" : `${platformStats?.totalChallenges || 0} total`}
               />
               <StatsCard
                 icon={<ShoppingCart className="w-6 h-6 text-accent" />}
-                value="89"
+                value={loading ? "..." : platformStats?.totalMarketplaceProducts?.toString() || "0"}
                 label="Produits"
-                trend="+15%"
+                trend={loading ? "" : `${(platformStats?.totalTokensInCirculation || 0).toLocaleString()} tokens`}
               />
             </div>
 
@@ -195,11 +200,24 @@ export const HomePage = () => {
                   <Button 
                     variant="outline" 
                     className="h-auto p-4 justify-start hover:bg-primary/10"
-                    onClick={() => setActiveTab("profile")}
+                    onClick={() => setActiveTab("analytics")}
                   >
                     <div className="flex items-center space-x-3">
                       <div className="p-2 rounded-full bg-info/10">
-                        <UserCircle className="w-4 h-4 text-info" />
+                        <BarChart3 className="w-4 h-4 text-info" />
+                      </div>
+                      <span className="text-sm font-medium">Analytics</span>
+                    </div>
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-auto p-4 justify-start hover:bg-primary/10"
+                    onClick={() => setActiveTab("profile")}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 rounded-full bg-success/10">
+                        <UserCircle className="w-4 h-4 text-success" />
                       </div>
                       <span className="text-sm font-medium">Mon profil</span>
                     </div>
