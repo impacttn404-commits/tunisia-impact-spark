@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import { ArrowLeft, UserCircle, TrendingUp, Star } from 'lucide-react';
 const AuthPage = () => {
   const { user, signUp, signIn, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Redirect if already authenticated
   if (user && !loading) {
@@ -89,7 +90,7 @@ const AuthPage = () => {
       <div className="container mx-auto px-4 py-8">
         <Button 
           variant="ghost" 
-          onClick={() => window.history.back()} 
+          onClick={() => navigate('/')} 
           className="mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
