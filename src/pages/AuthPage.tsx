@@ -90,8 +90,22 @@ const AuthPage = () => {
       <div className="container mx-auto px-4 py-8">
         <Button 
           variant="ghost" 
-          onClick={() => navigate('/')} 
+          onClick={() => {
+            // Éviter la boucle de redirection : si l'utilisateur n'est pas authentifié,
+            // ne pas rediriger vers "/" car ProtectedRoute renverra vers "/auth"
+            if (user) {
+              navigate('/');
+            } else {
+              // Pour les utilisateurs non authentifiés, on peut soit :
+              // 1. Ne rien faire (comportement actuel)
+              // 2. Rediriger vers une page publique
+              // 3. Afficher un message
+              console.log('Utilisateur non authentifié - pas de redirection');
+            }
+          }}
           className="mb-6"
+          disabled={!user && !loading}
+          title={!user ? "Connectez-vous d'abord pour accéder à l'accueil" : "Retour à l'accueil"}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Retour
