@@ -50,7 +50,10 @@ const LandingPage = () => {
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent">
+          <h1 
+            onClick={() => navigate('/')} 
+            className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition-opacity"
+          >
             Impact Tunisia
           </h1>
           <Button onClick={() => navigate('/auth')} variant="outline">
