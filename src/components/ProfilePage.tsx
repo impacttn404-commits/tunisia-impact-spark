@@ -6,6 +6,16 @@ import { Settings, Star, TrendingUp, Coins, Trophy, Award, Users, History } from
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { TokenHistoryPage } from "./TokenHistoryPage";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 const roleLabels = {
   evaluator: 'Évaluateur',
@@ -14,8 +24,33 @@ const roleLabels = {
 };
 
 export const ProfilePage = () => {
-  const { profile, signOut } = useAuth();
+  const { profile, updateProfile } = useAuth();
   const [showTokenHistory, setShowTokenHistory] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [formData, setFormData] = useState({
+    first_name: profile?.first_name || "",
+    last_name: profile?.last_name || "",
+    phone: profile?.phone || "",
+    company_name: profile?.company_name || "",
+  });
+  const { toast } = useToast();
+
+  const handleSaveSettings = async () => {
+    const { error } = await updateProfile(formData);
+    if (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le profil",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Succès",
+        description: "Profil mis à jour avec succès",
+      });
+      setShowSettings(false);
+    }
+  };
 
   if (!profile) {
     return (
@@ -54,7 +89,12 @@ export const ProfilePage = () => {
               </Badge>
             </div>
           </div>
-          <Button variant="outline" size="icon" className="rounded-full">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="rounded-full"
+            onClick={() => setShowSettings(true)}
+          >
             <Settings className="h-5 w-5" />
           </Button>
         </div>
@@ -149,6 +189,60 @@ export const ProfilePage = () => {
           />
         </div>
       </div>
+
+      {/* Settings Dialog */}
+      <Dialog open={showSettings} onOpenChange={setShowSettings}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Paramètres du profil</DialogTitle>
+            <DialogDescription>
+              Modifiez vos informations personnelles
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="first_name">Prénom</Label>
+              <Input
+                id="first_name"
+                value={formData.first_name}
+                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="last_name">Nom</Label>
+              <Input
+                id="last_name"
+                value={formData.last_name}
+                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Téléphone</Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="company_name">Entreprise</Label>
+              <Input
+                id="company_name"
+                value={formData.company_name}
+                onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowSettings(false)}>
+                Annuler
+              </Button>
+              <Button onClick={handleSaveSettings}>
+                Enregistrer
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
