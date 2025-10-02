@@ -379,12 +379,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_user_score: {
+        Args: { _user_id: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      update_user_badge: {
+        Args: { _user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
