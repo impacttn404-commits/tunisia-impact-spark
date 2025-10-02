@@ -10,8 +10,10 @@ import { EvaluationsPage } from "./EvaluationsPage";
 import { AnalyticsDashboard } from "./AnalyticsDashboard";
 import { useAuth } from "@/hooks/useAuth";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { Users, Target, Award, ShoppingCart, UserCircle, TrendingUp, Star, LogOut, BarChart3 } from "lucide-react";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { Users, Target, Award, ShoppingCart, UserCircle, TrendingUp, Star, LogOut, BarChart3, Shield } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const roleLabels = {
   evaluator: 'Évaluateur',
@@ -43,6 +45,8 @@ const userTypes = [
 export const HomePage = () => {
   const { profile, signOut } = useAuth();
   const { platformStats, loading } = useAnalytics();
+  const { isAdmin } = useAdminAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("home");
 
   const renderContent = () => {
@@ -274,6 +278,17 @@ export const HomePage = () => {
               <span className="text-sm font-medium text-primary">
                 {profile?.tokens_balance || 0} 🟠
               </span>
+              {isAdmin && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => navigate('/admin')}
+                  className="border-warning text-warning hover:bg-warning/10"
+                  title="Console Administrateur"
+                >
+                  <Shield className="w-4 h-4" />
+                </Button>
+              )}
               <Button variant="ghost" size="sm" onClick={signOut}>
                 <LogOut className="w-4 h-4" />
               </Button>
