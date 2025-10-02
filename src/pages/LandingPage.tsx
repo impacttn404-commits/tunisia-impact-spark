@@ -145,8 +145,21 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="container mx-auto px-4 py-8 text-center text-muted-foreground">
-        <p>&copy; 2024 Impact Tunisia. Tous droits réservés.</p>
+      <footer className="container mx-auto px-4 py-8 mt-20 border-t">
+        <div className="flex flex-col items-center gap-4">
+          <p className="text-center text-muted-foreground">
+            © 2024 Impact Tunisia. Tous droits réservés.
+          </p>
+          <button
+            onClick={() => navigate('/admin')}
+            className="text-xs text-muted-foreground/60 hover:text-primary transition-colors flex items-center gap-1"
+          >
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Espace Administrateur
+          </button>
+        </div>
       </footer>
     </div>
   );
