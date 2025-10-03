@@ -1,7 +1,27 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
+interface SignUpUserData {
+  first_name: string;
+  last_name: string;
+  role: 'investor' | 'projectHolder' | 'evaluator';
+  phone?: string;
+  company_name?: string;
+}
+
+interface AuthResult {
+  error: AuthError | Error | null;
+}
+
+interface UpdateResult {
+  error: Error | null;
+}
+
+interface ProfileUpdate {
+  [key: string]: string | number | boolean | null | undefined;
+}
 
 interface Profile {
   id: string;
@@ -23,10 +43,10 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, userData: any) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, userData: SignUpUserData) => Promise<AuthResult>;
+  signIn: (email: string, password: string) => Promise<AuthResult>;
   signOut: () => Promise<void>;
-  updateProfile: (data: Partial<Profile>) => Promise<{ error: any }>;
+  updateProfile: (data: ProfileUpdate) => Promise<UpdateResult>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -92,11 +112,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, userData: any) => {
+  const signUp = async (email: string, password: string, userData: SignUpUserData): Promise<AuthResult> => {
     try {
       const redirectUrl = `${window.location.origin}/dashboard`;
       
-      const { error } = await supabase.auth.signUp({
+      const { error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -105,48 +125,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       });
 
-      if (error) {
+      if (authError) {
         toast({
           title: "Erreur d'inscription",
-          description: error.message,
+          description: authError.message,
           variant: "destructive",
         });
+        return { error: authError };
       } else {
         toast({
           title: "Inscription réussie",
           description: "Veuillez vérifier votre email pour confirmer votre compte.",
         });
+        return { error: null };
       }
-
-      return { error };
-    } catch (error: any) {
-      return { error };
+    } catch (error) {
+      return { error: error as Error };
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<AuthResult> => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
+      if (authError) {
         toast({
           title: "Erreur de connexion",
-          description: error.message,
+          description: authError.message,
           variant: "destructive",
         });
+        return { error: authError };
       } else {
         toast({
           title: "Connexion réussie",
           description: "Bienvenue sur Impact Tunisia !",
         });
+        return { error: null };
       }
-
-      return { error };
-    } catch (error: any) {
-      return { error };
+    } catch (error) {
+      return { error: error as Error };
     }
   };
 
@@ -160,13 +180,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Déconnexion",
         description: "Vous êtes maintenant déconnecté.",
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error signing out:', error);
     }
   };
 
-  const updateProfile = async (data: Partial<Profile>) => {
-    if (!user) return { error: new Error('Not authenticated') };
+  const updateProfile = async (data: ProfileUpdate): Promise<UpdateResult> => {
+    if (!user) {
+      return { error: new Error('Not authenticated') };
+    }
 
     try {
       const { error } = await supabase
@@ -190,8 +212,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       return { error };
-    } catch (error: any) {
-      return { error };
+    } catch (error) {
+      return { error: error as Error };
     }
   };
 

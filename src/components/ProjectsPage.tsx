@@ -1,3 +1,4 @@
+import { ChangeEvent } from "react";
 import { Search, Filter, MapPin, Calendar, User, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,14 +51,14 @@ export const ProjectsPage = () => {
   };
 
   const formatCurrency = (amount: number | null) => {
-    if (!amount) return 'Non spécifié';
+    if (amount === null || amount === undefined) return 'Non spécifié';
     return `${amount.toLocaleString()} TND`;
   };
 
   const filteredProjects = projects.filter(project =>
-    project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.sector.toLowerCase().includes(searchTerm.toLowerCase())
+    project.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.sector?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const submittedProjects = projects.filter(p => p.status === 'submitted');
@@ -105,7 +106,7 @@ export const ProjectsPage = () => {
             placeholder="Rechercher un projet..."
             className="pl-10 h-12 bg-white"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
           />
         </div>
         

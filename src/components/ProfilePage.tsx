@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Settings, Star, TrendingUp, Coins, Trophy, Award, Users, History } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import { TokenHistoryPage } from "./TokenHistoryPage";
 import {
   Dialog,
@@ -28,10 +28,10 @@ export const ProfilePage = () => {
   const [showTokenHistory, setShowTokenHistory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [formData, setFormData] = useState({
-    first_name: profile?.first_name || "",
-    last_name: profile?.last_name || "",
-    phone: profile?.phone || "",
-    company_name: profile?.company_name || "",
+    first_name: profile?.first_name ?? "",
+    last_name: profile?.last_name ?? "",
+    phone: profile?.phone ?? "",
+    company_name: profile?.company_name ?? "",
   });
   const { toast } = useToast();
 
@@ -65,7 +65,7 @@ export const ProfilePage = () => {
   }
 
   const getInitials = (firstName?: string, lastName?: string) => {
-    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
+    return `${firstName?.charAt(0) ?? ''}${lastName?.charAt(0) ?? ''}`.toUpperCase();
   };
 
   return (
@@ -183,7 +183,7 @@ export const ProfilePage = () => {
           />
           <StatsCard
             icon={<TrendingUp className="w-5 h-5 text-success" />}
-            value={profile.badge_level?.toUpperCase() || 'BRONZE'}
+            value={profile.badge_level?.toUpperCase() ?? 'BRONZE'}
             label="Niveau badge"
             trend="↑ 1"
           />
@@ -205,7 +205,7 @@ export const ProfilePage = () => {
               <Input
                 id="first_name"
                 value={formData.first_name}
-                onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, first_name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -213,7 +213,7 @@ export const ProfilePage = () => {
               <Input
                 id="last_name"
                 value={formData.last_name}
-                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, last_name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -221,7 +221,7 @@ export const ProfilePage = () => {
               <Input
                 id="phone"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, phone: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -229,7 +229,7 @@ export const ProfilePage = () => {
               <Input
                 id="company_name"
                 value={formData.company_name}
-                onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, company_name: e.target.value })}
               />
             </div>
             <div className="flex justify-end gap-2">

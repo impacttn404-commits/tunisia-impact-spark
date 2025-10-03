@@ -1,9 +1,27 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, Target, Lightbulb, TrendingUp, Leaf, Calendar, User } from "lucide-react";
+import { Star, Target, Lightbulb, TrendingUp, Leaf, Calendar } from "lucide-react";
 import { useEvaluations } from "@/hooks/useEvaluations";
 import { useAuth } from "@/hooks/useAuth";
+
+type EvaluationWithProject = {
+  id: string;
+  impact_score: number | null;
+  innovation_score: number | null;
+  viability_score: number | null;
+  sustainability_score: number | null;
+  overall_score: number | null;
+  tokens_earned: number | null;
+  created_at: string;
+  feedback: string | null;
+  evaluator_id: string;
+  project_id: string;
+  projects?: {
+    title?: string;
+    sector?: string;
+  };
+};
 
 const criteriaIcons = {
   impact_score: Target,
@@ -97,7 +115,7 @@ export const EvaluationsPage = () => {
           <Card>
             <CardContent className="pt-6 text-center">
               <div className="text-2xl font-bold text-success mb-1">
-                {evaluations.reduce((sum, e) => sum + (e.tokens_earned || 0), 0)}
+                {evaluations.reduce((sum, e) => sum + (e.tokens_earned ?? 0), 0)}
               </div>
               <div className="text-sm text-muted-foreground">
                 Tokens gagnés
@@ -109,7 +127,7 @@ export const EvaluationsPage = () => {
             <CardContent className="pt-6 text-center">
               <div className="text-2xl font-bold text-info mb-1">
                 {evaluations.length > 0 ? 
-                  (evaluations.reduce((sum, e) => sum + (e.overall_score || 0), 0) / evaluations.length).toFixed(1)
+                  (evaluations.reduce((sum, e) => sum + (e.overall_score ?? 0), 0) / evaluations.length).toFixed(1)
                   : '0'
                 }
               </div>
@@ -128,7 +146,7 @@ export const EvaluationsPage = () => {
                  profile?.badge_level === 'platinum' ? '💎' : '🏅'}
               </div>
               <div className="text-sm text-muted-foreground capitalize">
-                {profile?.badge_level || 'Bronze'}
+                {profile?.badge_level ?? 'Bronze'}
               </div>
             </CardContent>
           </Card>
@@ -153,12 +171,14 @@ export const EvaluationsPage = () => {
             </Button>
           </Card>
         ) : (
-          evaluations.map((evaluation) => (
+          evaluations.map((evaluation) => {
+            const evalWithProject = evaluation as EvaluationWithProject;
+            return (
             <Card key={evaluation.id} className="overflow-hidden">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">
-                    {(evaluation as any).projects?.title || 'Projet supprimé'}
+                    {evalWithProject.projects?.title ?? 'Projet supprimé'}
                   </CardTitle>
                   <div className="flex items-center space-x-2">
                     <Badge variant="secondary" className="bg-success/10 text-success">
@@ -211,17 +231,18 @@ export const EvaluationsPage = () => {
                   )}
                   
                   {/* Project info */}
-                  {(evaluation as any).projects && (
+                  {evalWithProject.projects && (
                     <div className="pt-3 border-t">
                       <p className="text-sm text-muted-foreground">
-                        <strong>Secteur:</strong> {(evaluation as any).projects.sector}
+                        <strong>Secteur:</strong> {evalWithProject.projects.sector}
                       </p>
                     </div>
                   )}
                 </div>
               </CardContent>
             </Card>
-          ))
+            );
+          })
         )}
       </div>
     </div>

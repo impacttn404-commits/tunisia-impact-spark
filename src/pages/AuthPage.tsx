@@ -28,7 +28,7 @@ const AuthPage = () => {
     const password = formData.get('password') as string;
     const firstName = formData.get('firstName') as string;
     const lastName = formData.get('lastName') as string;
-    const role = formData.get('role') as string;
+    const role = formData.get('role') as 'investor' | 'projectHolder' | 'evaluator';
     const companyName = formData.get('companyName') as string;
 
     await signUp(email, password, {
