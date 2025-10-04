@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,7 +34,8 @@ export const AuthPage = ({ onBack }: AuthPageProps) => {
     role: "" as UserRole,
     firstName: "",
     lastName: "",
-    companyName: "" // For investors
+    phone: "",
+    companyName: ""
   });
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -99,20 +100,18 @@ export const AuthPage = ({ onBack }: AuthPageProps) => {
     setLoading(true);
 
     try {
-      const additionalData: any = {
+      const userData = {
         first_name: signupForm.firstName,
-        last_name: signupForm.lastName
+        last_name: signupForm.lastName,
+        role: signupForm.role,
+        phone: signupForm.phone || undefined,
+        company_name: signupForm.role === 'investor' ? signupForm.companyName : undefined,
       };
-
-      if (signupForm.role === 'investor') {
-        additionalData.company_name = signupForm.companyName;
-      }
 
       const { error } = await signUp(
         signupForm.email,
         signupForm.password,
-        signupForm.role,
-        additionalData
+        userData
       );
       
       if (error) {

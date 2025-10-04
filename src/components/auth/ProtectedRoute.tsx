@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 
@@ -14,7 +14,7 @@ export const ProtectedRoute = ({
   requiredRole, 
   fallback 
 }: ProtectedRouteProps) => {
-  const { user, userProfile, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
 
   if (loading) {
     return (
@@ -29,11 +29,11 @@ export const ProtectedRoute = ({
     );
   }
 
-  if (!user || !userProfile) {
+  if (!user || !profile) {
     return fallback || null;
   }
 
-  if (requiredRole && !requiredRole.includes(userProfile.role)) {
+  if (requiredRole && !requiredRole.includes(profile.role)) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card>
