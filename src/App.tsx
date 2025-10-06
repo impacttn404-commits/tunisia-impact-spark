@@ -11,6 +11,15 @@ import AuthPage from "./pages/AuthPage";
 import LandingPage from "./pages/LandingPage";
 import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
+import CriteresPage from "./pages/CriteresPage";
+import FAQPage from "./pages/FAQPage";
+import CommentCaMarchePage from "./pages/CommentCaMarchePage";
+import PartenairesPage from "./pages/PartenairesPage";
+import ContactPage from "./pages/ContactPage";
+import MentionsLegalesPage from "./pages/MentionsLegalesPage";
+import CGUPage from "./pages/CGUPage";
+import PolitiqueConfidentialitePage from "./pages/PolitiqueConfidentialitePage";
+import PolitiqueCookiesPage from "./pages/PolitiqueCookiesPage";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +43,20 @@ const App = () => (
                 <AdminPage />
               </AdminRoute>
             } />
+            
+            {/* Public Pages */}
+            <Route path="/criteres" element={<CriteresPage />} />
+            <Route path="/faq" element={<FAQPage />} />
+            <Route path="/comment-ca-marche" element={<CommentCaMarchePage />} />
+            <Route path="/partenaires" element={<PartenairesPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            
+            {/* Legal Pages */}
+            <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+            <Route path="/cgu" element={<CGUPage />} />
+            <Route path="/politique-confidentialite" element={<PolitiqueConfidentialitePage />} />
+            <Route path="/politique-cookies" element={<PolitiqueCookiesPage />} />
+            
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
