@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowRight, Star, TrendingUp, UserCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Footer from '@/components/Footer';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -144,12 +145,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="container mx-auto px-4 py-8 mt-20 border-t">
-        <p className="text-center text-muted-foreground">
-          © 2024 Impact Tunisia. Tous droits réservés.
-        </p>
-      </footer>
+      <Footer />
     </div>
   );
 };
