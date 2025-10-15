@@ -49,23 +49,35 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-accent/20">
       {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <div className="flex justify-between items-center">
-          <h1 
-            onClick={() => navigate('/')} 
-            className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition-opacity"
+      <header className="container mx-auto px-4 py-6" role="banner">
+        <nav className="flex justify-between items-center" role="navigation" aria-label="Navigation principale">
+          <a 
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate('/');
+            }}
+            className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+            aria-label="Retour à l'accueil Impact Tunisia"
           >
-            Impact Tunisia
-          </h1>
-          <Button onClick={() => navigate('/auth')} variant="outline">
+            <h1>Impact Tunisia</h1>
+          </a>
+          <Button 
+            onClick={() => navigate('/auth')} 
+            variant="outline"
+            aria-label="Se connecter à votre compte"
+          >
             Se connecter
           </Button>
-        </div>
+        </nav>
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 text-center">
-        <h2 className="text-4xl md:text-6xl font-bold mb-6">
+      <section 
+        className="container mx-auto px-4 py-16 text-center" 
+        aria-labelledby="hero-heading"
+      >
+        <h2 id="hero-heading" className="text-4xl md:text-6xl font-bold mb-6">
           Rejoignez la communauté de
           <span className="bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent block">
             l'impact social
@@ -77,11 +89,14 @@ const LandingPage = () => {
       </section>
 
       {/* Actor Types CTA */}
-      <section className="container mx-auto px-4 py-16">
+      <section 
+        className="container mx-auto px-4 py-16"
+        aria-labelledby="roles-heading"
+      >
         <div className="text-center mb-12">
-          <h3 className="text-3xl font-bold mb-4">
+          <h2 id="roles-heading" className="text-3xl font-bold mb-4">
             Choisissez votre rôle dans l'écosystème
-          </h3>
+          </h2>
           <p className="text-muted-foreground text-lg">
             Chaque acteur joue un rôle essentiel dans notre mission d'impact social
           </p>
@@ -93,8 +108,12 @@ const LandingPage = () => {
             return (
               <Card key={actor.id} className="relative group hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50">
                 <CardHeader className="text-center pb-4">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <IconComponent className="w-8 h-8 text-primary" />
+                  <div 
+                    className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors"
+                    role="img"
+                    aria-label={`Icône ${actor.title}`}
+                  >
+                    <IconComponent className="w-8 h-8 text-primary" aria-hidden="true" />
                   </div>
                   <CardTitle className="text-xl">{actor.title}</CardTitle>
                   <CardDescription className="text-base">
@@ -113,9 +132,10 @@ const LandingPage = () => {
                   <Button 
                     onClick={() => navigate('/auth')}
                     className="w-full group-hover:scale-105 transition-transform"
+                    aria-label={`${actor.cta} - S'inscrire en tant que ${actor.title}`}
                   >
                     {actor.cta}
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
                   </Button>
                 </CardContent>
               </Card>
@@ -125,9 +145,12 @@ const LandingPage = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="container mx-auto px-4 py-16 bg-card/50 rounded-lg mx-4 mb-16">
+      <section 
+        className="container mx-auto px-4 py-16 bg-card/50 rounded-lg mx-4 mb-16"
+        aria-labelledby="stats-heading"
+      >
         <div className="text-center mb-12">
-          <h3 className="text-3xl font-bold mb-4">L'impact en chiffres</h3>
+          <h2 id="stats-heading" className="text-3xl font-bold mb-4">L'impact en chiffres</h2>
         </div>
         <div className="grid md:grid-cols-3 gap-8 text-center">
           <div>

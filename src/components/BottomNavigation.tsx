@@ -18,7 +18,11 @@ const navItems = [
 
 export const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50">
+    <nav 
+      className="fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50"
+      role="navigation"
+      aria-label="Navigation principale"
+    >
       <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -28,8 +32,10 @@ export const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationPro
             <button
               key={item.id}
               onClick={() => onTabChange(item.id)}
+              aria-label={`Naviguer vers ${item.label}`}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
-                "flex flex-col items-center justify-center space-y-1 py-1 px-3 rounded-lg transition-all duration-200",
+                "flex flex-col items-center justify-center space-y-1 py-1 px-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
                 isActive 
                   ? "text-primary" 
                   : "text-muted-foreground hover:text-foreground"
@@ -49,6 +55,6 @@ export const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationPro
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 };

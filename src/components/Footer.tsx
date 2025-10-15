@@ -27,11 +27,11 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-card border-t border-border mt-auto">
+    <footer className="bg-card border-t border-border mt-auto" role="contentinfo">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Navigation */}
-          <div>
+          <nav aria-label="Navigation du pied de page">
             <h3 className="text-lg font-semibold text-foreground mb-4">Navigation</h3>
             <ul className="space-y-2">
               {navigationLinks.map((link) => (
@@ -45,10 +45,10 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
           {/* Legal */}
-          <div>
+          <nav aria-label="Informations légales">
             <h3 className="text-lg font-semibold text-foreground mb-4">Informations légales</h3>
             <ul className="space-y-2">
               {legalLinks.map((link) => (
@@ -62,12 +62,12 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
           {/* Social & Contact */}
           <div>
-            <h3 className="text-lg font-semibold text-foreground mb-4">Suivez-nous</h3>
-            <div className="flex space-x-4 mb-6">
+            <h3 className="text-lg font-semibold text-foreground mb-4" id="social-heading">Suivez-nous</h3>
+            <div className="flex space-x-4 mb-6" role="list" aria-labelledby="social-heading">
               {socialLinks.map((social) => {
                 const IconComponent = social.icon;
                 return (
