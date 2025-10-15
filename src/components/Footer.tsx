@@ -3,21 +3,21 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const navigationLinks = [
-    { label: 'Accueil', href: '/' },
-    { label: 'Projets', href: '/dashboard' },
-    { label: 'Soumettre un projet', href: '/dashboard' },
-    { label: 'Critères d\'évaluation', href: '/criteres' },
-    { label: 'FAQ', href: '/faq' },
-    { label: 'Comment ça marche', href: '/comment-ca-marche' },
-    { label: 'Partenaires', href: '/partenaires' },
-    { label: 'Contact', href: '/contact' },
+    { id: 'home', label: 'Accueil', href: '/' },
+    { id: 'projects', label: 'Projets', href: '/dashboard' },
+    { id: 'submit-project', label: 'Soumettre un projet', href: '/dashboard' },
+    { id: 'criteria', label: 'Critères d\'évaluation', href: '/criteres' },
+    { id: 'faq', label: 'FAQ', href: '/faq' },
+    { id: 'how-it-works', label: 'Comment ça marche', href: '/comment-ca-marche' },
+    { id: 'partners', label: 'Partenaires', href: '/partenaires' },
+    { id: 'contact', label: 'Contact', href: '/contact' },
   ];
 
   const legalLinks = [
-    { label: 'Mentions légales', href: '/mentions-legales' },
-    { label: 'Conditions Générales d\'Utilisation (CGU)', href: '/cgu' },
-    { label: 'Politique de confidentialité', href: '/politique-confidentialite' },
-    { label: 'Politique des cookies', href: '/politique-cookies' },
+    { id: 'legal', label: 'Mentions légales', href: '/mentions-legales' },
+    { id: 'cgu', label: 'Conditions Générales d\'Utilisation (CGU)', href: '/cgu' },
+    { id: 'privacy', label: 'Politique de confidentialité', href: '/politique-confidentialite' },
+    { id: 'cookies', label: 'Politique des cookies', href: '/politique-cookies' },
   ];
 
   const socialLinks = [
@@ -35,7 +35,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold text-foreground mb-4">Navigation</h3>
             <ul className="space-y-2">
               {navigationLinks.map((link) => (
-                <li key={link.href}>
+                <li key={link.id}>
                   <Link
                     to={link.href}
                     className="text-muted-foreground hover:text-primary transition-colors duration-200"
@@ -52,7 +52,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold text-foreground mb-4">Informations légales</h3>
             <ul className="space-y-2">
               {legalLinks.map((link) => (
-                <li key={link.href}>
+                <li key={link.id}>
                   <Link
                     to={link.href}
                     className="text-muted-foreground hover:text-primary transition-colors duration-200"
