@@ -5,7 +5,6 @@ import { ProjectsPage } from "../components/ProjectsPage";
 import { ChallengesPage } from "../components/ChallengesPage";
 import { MarketplacePage } from "../components/MarketplacePage";
 import { ProfilePage } from "../components/ProfilePage";
-import Footer from "../components/Footer";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -29,11 +28,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1">
+      <div className="flex-1 pb-16">
         {renderPage()}
       </div>
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-      <Footer />
     </div>
   );
 };
