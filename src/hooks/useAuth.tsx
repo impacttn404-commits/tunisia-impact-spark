@@ -59,17 +59,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener
+    let isMounted = true;
+    let debounceTimer: NodeJS.Timeout;
+
+    // Set up auth state listener FIRST (no async callback)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
+        if (!isMounted) return;
+
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile
-          setTimeout(async () => {
-            await fetchUserProfile(session.user.id);
-          }, 0);
+          // Debounce profile fetching to prevent race conditions
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => {
+            if (isMounted) {
+              fetchUserProfile(session.user.id);
+            }
+          }, 100);
         } else {
           setProfile(null);
         }
@@ -78,8 +86,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // Check for existing session
+    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return;
+
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -90,7 +100,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      clearTimeout(debounceTimer);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
@@ -103,6 +117,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         console.error('Error fetching profile:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger le profil utilisateur",
+          variant: "destructive",
+        });
         return;
       }
 

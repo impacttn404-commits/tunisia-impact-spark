@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
@@ -14,16 +14,20 @@ export const useProjects = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
+    const controller = new AbortController();
+
     try {
       const { data, error } = await supabase
         .from('projects')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .abortSignal(controller.signal);
 
       if (error) throw error;
       setProjects(data || []);
     } catch (error: any) {
+      if (error.name === 'AbortError') return;
       console.error('Error fetching projects:', error);
       toast({
         title: "Erreur",
@@ -33,7 +37,9 @@ export const useProjects = () => {
     } finally {
       setLoading(false);
     }
-  };
+
+    return controller;
+  }, [toast]);
 
   const createProject = async (projectData: ProjectInsert) => {
     if (!user) {
@@ -105,8 +111,21 @@ export const useProjects = () => {
   };
 
   useEffect(() => {
-    fetchProjects();
-  }, []);
+    let controller: AbortController;
+
+    const loadProjects = async () => {
+      const result = await fetchProjects();
+      if (result) {
+        controller = result;
+      }
+    };
+
+    loadProjects();
+
+    return () => {
+      controller?.abort();
+    };
+  }, [fetchProjects]);
 
   return {
     projects,

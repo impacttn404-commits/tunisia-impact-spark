@@ -1,3 +1,4 @@
+import { useMemo, useCallback, memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -33,9 +34,50 @@ import {
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
 
+// Memoized chart components
+const ChallengePerformanceChart = memo(({ data }: { data: any[] }) => (
+  <ResponsiveContainer width="100%" height={300}>
+    <BarChart data={data}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="title" angle={-45} textAnchor="end" height={100} />
+      <YAxis />
+      <Tooltip />
+      <Bar dataKey="participants" fill={COLORS[0]} name="Participants" />
+      <Bar dataKey="totalProjectsSubmitted" fill={COLORS[1]} name="Projets soumis" />
+    </BarChart>
+  </ResponsiveContainer>
+));
+
+ChallengePerformanceChart.displayName = 'ChallengePerformanceChart';
+
 export const AnalyticsDashboard = () => {
   const { platformStats, userStats, challengeAnalytics, topPerformers, loading, refreshAnalytics } = useAnalytics();
   const { profile } = useAuth();
+
+  // Memoize formatted data
+  const formattedChallengeData = useMemo(() => 
+    challengeAnalytics.map(c => ({
+      title: c.title.length > 15 ? c.title.substring(0, 15) + '...' : c.title,
+      participants: c.participants,
+      totalProjectsSubmitted: c.totalProjectsSubmitted,
+    })),
+    [challengeAnalytics]
+  );
+
+  const formattedTopEvaluators = useMemo(() => 
+    topPerformers?.topEvaluators || [],
+    [topPerformers]
+  );
+
+  const formattedTopProjects = useMemo(() => 
+    topPerformers?.topProjects || [],
+    [topPerformers]
+  );
+
+  // Memoize callback
+  const handleRefresh = useCallback(() => {
+    refreshAnalytics();
+  }, [refreshAnalytics]);
 
   if (loading) {
     return (
@@ -62,7 +104,7 @@ export const AnalyticsDashboard = () => {
             {isAdmin ? 'Tableau de bord administrateur' : 'Vos statistiques personnelles'}
           </p>
         </div>
-        <Button variant="outline" onClick={refreshAnalytics} disabled={loading}>
+        <Button variant="outline" onClick={handleRefresh} disabled={loading}>
           <RefreshCw className="w-4 h-4 mr-2" />
           Actualiser
         </Button>
@@ -104,21 +146,12 @@ export const AnalyticsDashboard = () => {
               <CardTitle>Performance des Challenges</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={challengeAnalytics}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="title" angle={-45} textAnchor="end" height={100} />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="participants" fill={COLORS[0]} name="Participants" />
-                  <Bar dataKey="totalProjectsSubmitted" fill={COLORS[1]} name="Projets soumis" />
-                </BarChart>
-              </ResponsiveContainer>
+              <ChallengePerformanceChart data={formattedChallengeData} />
             </CardContent>
           </Card>
 
           {/* Top Performers */}
-          {topPerformers && (
+          {formattedTopEvaluators.length > 0 && (
             <div className="grid md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -129,7 +162,7 @@ export const AnalyticsDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {topPerformers.topEvaluators.map((evaluator, index) => (
+                    {formattedTopEvaluators.map((evaluator, index) => (
                       <div key={evaluator.user_id} className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${
@@ -165,7 +198,7 @@ export const AnalyticsDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {topPerformers.topProjects.map((project, index) => (
+                    {formattedTopProjects.map((project, index) => (
                       <div key={project.id} className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${

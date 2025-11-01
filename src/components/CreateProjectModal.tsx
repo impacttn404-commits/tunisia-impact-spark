@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useProjects } from "@/hooks/useProjects";
 import { useChallenges } from "@/hooks/useChallenges";
+import { projectSchema, type ProjectFormData } from "@/lib/validations/project";
 import type { Database } from '@/integrations/supabase/types';
 
 interface CreateProjectModalProps {
@@ -33,29 +36,40 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
   const { createProject } = useProjects();
   const { challenges } = useChallenges();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    sector: '',
-    objectives: '',
-    budget: '',
-    challenge_id: '',
+
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<ProjectFormData>({
+    resolver: zodResolver(projectSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      sector: '',
+      objectives: '',
+      budget: null,
+      challenge_id: null,
+    }
   });
 
   const activeChallenges = challenges.filter(c => c.status === 'active');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Reset form and loading when modal closes
+  useEffect(() => {
+    if (!open) {
+      setLoading(false);
+      reset();
+    }
+  }, [open, reset]);
+
+  const onSubmit = async (data: ProjectFormData) => {
     setLoading(true);
 
     try {
       const projectData: Database['public']['Tables']['projects']['Insert'] = {
-        title: formData.title,
-        description: formData.description,
-        sector: formData.sector,
-        objectives: formData.objectives || null,
-        budget: formData.budget ? parseFloat(formData.budget) : null,
-        challenge_id: formData.challenge_id || null,
+        title: data.title,
+        description: data.description,
+        sector: data.sector,
+        objectives: data.objectives || null,
+        budget: data.budget || null,
+        challenge_id: data.challenge_id || null,
         status: 'draft',
         created_by: '', // Will be set by the hook
       };
@@ -64,14 +78,7 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
       
       if (result?.error === null) {
         onOpenChange(false);
-        setFormData({
-          title: '',
-          description: '',
-          sector: '',
-          objectives: '',
-          budget: '',
-          challenge_id: '',
-        });
+        reset();
       }
     } catch (error) {
       console.error('Error creating project:', error);
@@ -80,9 +87,8 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  const sector = watch('sector');
+  const challengeId = watch('challenge_id');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -91,47 +97,52 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
           <DialogTitle>Créer un nouveau projet</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 gap-4">
             <div>
               <Label htmlFor="title">Titre du projet *</Label>
               <Input
                 id="title"
-                value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
+                {...register('title')}
                 placeholder="Recyclage Intelligent Tunisie"
-                required
               />
+              {errors.title && (
+                <p className="text-sm text-destructive mt-1">{errors.title.message}</p>
+              )}
             </div>
 
             <div>
               <Label htmlFor="description">Description *</Label>
               <Textarea
                 id="description"
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Décrivez votre projet, son impact et ses objectifs..."
+                {...register('description')}
+                placeholder="Décrivez votre projet, son impact et ses objectifs... (min. 50 caractères)"
                 rows={4}
-                required
               />
+              {errors.description && (
+                <p className="text-sm text-destructive mt-1">{errors.description.message}</p>
+              )}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="sector">Secteur *</Label>
-              <Select value={formData.sector} onValueChange={(value) => handleInputChange('sector', value)}>
+              <Select value={sector} onValueChange={(value) => setValue('sector', value, { shouldValidate: true })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionnez un secteur" />
                 </SelectTrigger>
                 <SelectContent>
-                  {sectors.map((sector) => (
-                    <SelectItem key={sector} value={sector}>
-                      {sector}
+                  {sectors.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {errors.sector && (
+                <p className="text-sm text-destructive mt-1">{errors.sector.message}</p>
+              )}
             </div>
 
             <div>
@@ -141,10 +152,12 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
                 type="number"
                 min="0"
                 step="0.01"
-                value={formData.budget}
-                onChange={(e) => handleInputChange('budget', e.target.value)}
+                {...register('budget', { valueAsNumber: true })}
                 placeholder="25000"
               />
+              {errors.budget && (
+                <p className="text-sm text-destructive mt-1">{errors.budget.message}</p>
+              )}
             </div>
           </div>
 
@@ -152,17 +165,19 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
             <Label htmlFor="objectives">Objectifs détaillés</Label>
             <Textarea
               id="objectives"
-              value={formData.objectives}
-              onChange={(e) => handleInputChange('objectives', e.target.value)}
-              placeholder="Listez les objectifs spécifiques de votre projet..."
+              {...register('objectives')}
+              placeholder="Listez les objectifs spécifiques de votre projet... (max. 2000 caractères)"
               rows={3}
             />
+            {errors.objectives && (
+              <p className="text-sm text-destructive mt-1">{errors.objectives.message}</p>
+            )}
           </div>
 
           {activeChallenges.length > 0 && (
             <div>
               <Label htmlFor="challenge_id">Challenge associé (optionnel)</Label>
-              <Select value={formData.challenge_id} onValueChange={(value) => handleInputChange('challenge_id', value)}>
+              <Select value={challengeId || ''} onValueChange={(value) => setValue('challenge_id', value || null)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionnez un challenge" />
                 </SelectTrigger>
@@ -179,7 +194,7 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
           )}
 
           <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
               Annuler
             </Button>
             <Button type="submit" disabled={loading}>

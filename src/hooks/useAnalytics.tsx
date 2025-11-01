@@ -61,11 +61,16 @@ export const useAnalytics = () => {
   const { toast } = useToast();
 
   const fetchPlatformStats = async () => {
+    const controller = new AbortController();
+    
     try {
       // Get project statistics
-      const { data: projectStats } = await supabase
+      const { data: projectStats, error: projectError } = await supabase
         .from('projects')
-        .select('status, average_rating, total_evaluations');
+        .select('status, average_rating, total_evaluations')
+        .abortSignal(controller.signal);
+
+      if (projectError) throw projectError;
 
       const totalProjects = projectStats?.length || 0;
       const activeProjects = projectStats?.filter(p => p.status === 'submitted' || p.status === 'under_evaluation').length || 0;
@@ -74,32 +79,44 @@ export const useAnalytics = () => {
         projectStats.reduce((sum, p) => sum + (p.average_rating || 0), 0) / projectStats.length : 0;
 
       // Get challenge statistics
-      const { data: challengeStats } = await supabase
+      const { data: challengeStats, error: challengeError } = await supabase
         .from('challenges')
-        .select('status');
+        .select('status')
+        .abortSignal(controller.signal);
+
+      if (challengeError) throw challengeError;
 
       const totalChallenges = challengeStats?.length || 0;
       const activeChallenges = challengeStats?.filter(c => c.status === 'active').length || 0;
 
       // Get evaluator count
-      const { data: evaluatorStats } = await supabase
+      const { data: evaluatorStats, error: evaluatorError } = await supabase
         .from('profiles')
         .select('role')
-        .eq('role', 'evaluator');
+        .eq('role', 'evaluator')
+        .abortSignal(controller.signal);
+
+      if (evaluatorError) throw evaluatorError;
 
       const totalEvaluators = evaluatorStats?.length || 0;
 
       // Get token circulation
-      const { data: tokenStats } = await supabase
+      const { data: tokenStats, error: tokenError } = await supabase
         .from('profiles')
-        .select('tokens_balance');
+        .select('tokens_balance')
+        .abortSignal(controller.signal);
+
+      if (tokenError) throw tokenError;
 
       const totalTokensInCirculation = tokenStats?.reduce((sum, p) => sum + (p.tokens_balance || 0), 0) || 0;
 
       // Get marketplace products
-      const { data: marketplaceStats } = await supabase
+      const { data: marketplaceStats, error: marketplaceError } = await supabase
         .from('marketplace_products')
-        .select('is_active');
+        .select('is_active')
+        .abortSignal(controller.signal);
+
+      if (marketplaceError) throw marketplaceError;
 
       const totalMarketplaceProducts = marketplaceStats?.filter(p => p.is_active).length || 0;
 
@@ -114,55 +131,80 @@ export const useAnalytics = () => {
         totalMarketplaceProducts,
         averageProjectRating,
       });
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') return;
       console.error('Error fetching platform stats:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les statistiques de la plateforme",
+        variant: "destructive",
+      });
     }
+    
+    return controller;
   };
 
   const fetchUserStats = async () => {
     if (!user) return;
 
+    const controller = new AbortController();
+
     try {
       // Projects created by user
-      const { data: userProjects } = await supabase
+      const { data: userProjects, error: projectError } = await supabase
         .from('projects')
         .select('id')
-        .eq('created_by', user.id);
+        .eq('created_by', user.id)
+        .abortSignal(controller.signal);
+
+      if (projectError) throw projectError;
 
       const projectsCreated = userProjects?.length || 0;
 
       // Challenges created by user
-      const { data: userChallenges } = await supabase
+      const { data: userChallenges, error: challengeError } = await supabase
         .from('challenges')
         .select('id')
-        .eq('created_by', user.id);
+        .eq('created_by', user.id)
+        .abortSignal(controller.signal);
+
+      if (challengeError) throw challengeError;
 
       const challengesCreated = userChallenges?.length || 0;
 
       // Evaluations completed by user
-      const { data: userEvaluations } = await supabase
+      const { data: userEvaluations, error: evaluationError } = await supabase
         .from('evaluations')
         .select('overall_score, tokens_earned')
-        .eq('evaluator_id', user.id);
+        .eq('evaluator_id', user.id)
+        .abortSignal(controller.signal);
+
+      if (evaluationError) throw evaluationError;
 
       const evaluationsCompleted = userEvaluations?.length || 0;
       const averageEvaluationScore = userEvaluations?.length ?
         userEvaluations.reduce((sum, e) => sum + (e.overall_score || 0), 0) / userEvaluations.length : 0;
 
       // Token transactions
-      const { data: tokenTransactions } = await supabase
+      const { data: tokenTransactions, error: tokenError } = await supabase
         .from('token_transactions')
         .select('amount, type')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .abortSignal(controller.signal);
+
+      if (tokenError) throw tokenError;
 
       const tokensEarned = tokenTransactions?.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0) || 0;
       const tokensSpent = Math.abs(tokenTransactions?.filter(t => t.amount < 0).reduce((sum, t) => sum + t.amount, 0) || 0);
 
       // Marketplace products
-      const { data: userProducts } = await supabase
+      const { data: userProducts, error: productError } = await supabase
         .from('marketplace_products')
         .select('id, stock_quantity')
-        .eq('seller_id', user.id);
+        .eq('seller_id', user.id)
+        .abortSignal(controller.signal);
+
+      if (productError) throw productError;
 
       const productsListed = userProducts?.length || 0;
       const productsSold = 0; // Would need order/purchase tracking
@@ -177,14 +219,24 @@ export const useAnalytics = () => {
         productsListed,
         productsSold,
       });
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') return;
       console.error('Error fetching user stats:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger vos statistiques",
+        variant: "destructive",
+      });
     }
+    
+    return controller;
   };
 
   const fetchChallengeAnalytics = async () => {
+    const controller = new AbortController();
+
     try {
-      const { data: challenges } = await supabase
+      const { data: challenges, error } = await supabase
         .from('challenges')
         .select(`
           id,
@@ -197,7 +249,10 @@ export const useAnalytics = () => {
             average_rating,
             total_evaluations
           )
-        `);
+        `)
+        .abortSignal(controller.signal);
+
+      if (error) throw error;
 
       if (challenges) {
         const analytics: ChallengeAnalytics[] = challenges.map(challenge => ({
@@ -212,20 +267,33 @@ export const useAnalytics = () => {
         }));
         setChallengeAnalytics(analytics);
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') return;
       console.error('Error fetching challenge analytics:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les analytics des challenges",
+        variant: "destructive",
+      });
     }
+    
+    return controller;
   };
 
   const fetchTopPerformers = async () => {
+    const controller = new AbortController();
+
     try {
       // Top evaluators
-      const { data: topEvaluatorData } = await supabase
+      const { data: topEvaluatorData, error: evaluatorError } = await supabase
         .from('profiles')
         .select('user_id, first_name, last_name, total_evaluations, tokens_balance')
         .eq('role', 'evaluator')
         .order('total_evaluations', { ascending: false })
-        .limit(5);
+        .limit(5)
+        .abortSignal(controller.signal);
+
+      if (evaluatorError) throw evaluatorError;
 
       const topEvaluators = topEvaluatorData?.map(evaluator => ({
         user_id: evaluator.user_id,
@@ -235,11 +303,14 @@ export const useAnalytics = () => {
       })) || [];
 
       // Top projects
-      const { data: topProjectData } = await supabase
+      const { data: topProjectData, error: projectError } = await supabase
         .from('projects')
         .select('id, title, average_rating, total_evaluations')
         .order('average_rating', { ascending: false })
-        .limit(5);
+        .limit(5)
+        .abortSignal(controller.signal);
+
+      if (projectError) throw projectError;
 
       const topProjects = topProjectData?.map(project => ({
         id: project.id,
@@ -252,24 +323,48 @@ export const useAnalytics = () => {
         topEvaluators,
         topProjects,
       });
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === 'AbortError') return;
       console.error('Error fetching top performers:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger le classement",
+        variant: "destructive",
+      });
     }
+    
+    return controller;
   };
 
   const refreshAnalytics = async () => {
     setLoading(true);
-    await Promise.all([
+    
+    const controllers = await Promise.all([
       fetchPlatformStats(),
       fetchUserStats(),
       fetchChallengeAnalytics(),
       fetchTopPerformers(),
     ]);
+    
     setLoading(false);
+    return controllers;
   };
 
   useEffect(() => {
-    refreshAnalytics();
+    let controllers: AbortController[] = [];
+
+    const loadAnalytics = async () => {
+      const result = await refreshAnalytics();
+      if (result) {
+        controllers = result.filter(c => c !== undefined) as AbortController[];
+      }
+    };
+
+    loadAnalytics();
+
+    return () => {
+      controllers.forEach(controller => controller?.abort());
+    };
   }, [user]);
 
   return {
