@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent } from '@/components/ui/card';
 import { Star, Target, Lightbulb, TrendingUp, Leaf } from 'lucide-react';
 import { useEvaluations } from '@/hooks/useEvaluations';
+import { evaluationSchema, type EvaluationFormData } from '@/lib/validations/project';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
 import type { Database } from '@/integrations/supabase/types';
 
 type Project = Database['public']['Tables']['projects']['Row'];
@@ -46,50 +49,38 @@ const criteria = [
 
 export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModalProps) => {
   const { createEvaluation } = useEvaluations();
-  const [scores, setScores] = useState({
-    impact_score: [5],
-    innovation_score: [5],
-    viability_score: [5],
-    sustainability_score: [5]
+  
+  const form = useForm<EvaluationFormData>({
+    resolver: zodResolver(evaluationSchema),
+    defaultValues: {
+      impact_score: 5,
+      innovation_score: 5,
+      viability_score: 5,
+      sustainability_score: 5,
+      feedback: ''
+    }
   });
-  const [feedback, setFeedback] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleScoreChange = (criteriaKey: keyof typeof scores, value: number[]) => {
-    setScores(prev => ({
-      ...prev,
-      [criteriaKey]: value
-    }));
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (data: EvaluationFormData) => {
     if (!project) return;
 
-    setIsSubmitting(true);
     const result = await createEvaluation({
       project_id: project.id,
-      impact_score: scores.impact_score[0],
-      innovation_score: scores.innovation_score[0],
-      viability_score: scores.viability_score[0],
-      sustainability_score: scores.sustainability_score[0],
-      feedback: feedback.trim() || undefined
+      impact_score: data.impact_score,
+      innovation_score: data.innovation_score,
+      viability_score: data.viability_score,
+      sustainability_score: data.sustainability_score,
+      feedback: data.feedback
     });
 
     if (result?.data) {
       onOpenChange(false);
-      // Reset form
-      setScores({
-        impact_score: [5],
-        innovation_score: [5],
-        viability_score: [5],
-        sustainability_score: [5]
-      });
-      setFeedback('');
+      form.reset();
     }
-    setIsSubmitting(false);
   };
 
-  const averageScore = Object.values(scores).reduce((sum, score) => sum + score[0], 0) / 4;
+  const scores = form.watch(['impact_score', 'innovation_score', 'viability_score', 'sustainability_score']);
+  const averageScore = scores.reduce((sum, score) => sum + (score || 5), 0) / 4;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -102,99 +93,121 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
         </DialogHeader>
 
         {project && (
-          <div className="space-y-6">
-            {/* Project Info */}
-            <Card>
-              <CardContent className="pt-6">
-                <h3 className="font-semibold text-lg mb-2">{project.title}</h3>
-                <p className="text-muted-foreground mb-3">{project.description}</p>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Target className="w-4 h-4 mr-2" />
-                  {project.sector}
-                </div>
-              </CardContent>
-            </Card>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+              {/* Project Info */}
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="font-semibold text-lg mb-2">{project.title}</h3>
+                  <p className="text-muted-foreground mb-3">{project.description}</p>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Target className="w-4 h-4 mr-2" />
+                    {project.sector}
+                  </div>
+                </CardContent>
+              </Card>
 
-            {/* Evaluation Criteria */}
-            <div className="space-y-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-1">
-                  {averageScore.toFixed(1)}/10
+              {/* Evaluation Criteria */}
+              <div className="space-y-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary mb-1">
+                    {averageScore.toFixed(1)}/10
+                  </div>
+                  <p className="text-sm text-muted-foreground">Score global</p>
                 </div>
-                <p className="text-sm text-muted-foreground">Score global</p>
+
+                {criteria.map((criterion) => {
+                  const IconComponent = criterion.icon;
+                  
+                  return (
+                    <FormField
+                      key={criterion.key}
+                      control={form.control}
+                      name={criterion.key}
+                      render={({ field }) => (
+                        <FormItem className="space-y-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="p-2 rounded-full bg-primary/10">
+                              <IconComponent className="w-4 h-4 text-primary" />
+                            </div>
+                            <div className="flex-1">
+                              <FormLabel className="text-sm font-medium">
+                                {criterion.title}
+                              </FormLabel>
+                              <p className="text-xs text-muted-foreground">
+                                {criterion.description}
+                              </p>
+                            </div>
+                            <div className="text-lg font-semibold text-primary min-w-[3rem] text-center">
+                              {field.value}/10
+                            </div>
+                          </div>
+                          
+                          <FormControl>
+                            <Slider
+                              value={[field.value]}
+                              onValueChange={(value) => field.onChange(value[0])}
+                              max={10}
+                              min={0}
+                              step={1}
+                              className="flex-1"
+                            />
+                          </FormControl>
+                          
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>Très faible</span>
+                            <span>Excellent</span>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  );
+                })}
               </div>
 
-              {criteria.map((criterion) => {
-                const IconComponent = criterion.icon;
-                const currentScore = scores[criterion.key][0];
-                
-                return (
-                  <div key={criterion.key} className="space-y-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 rounded-full bg-primary/10">
-                        <IconComponent className="w-4 h-4 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <Label className="text-sm font-medium">
-                          {criterion.title}
-                        </Label>
-                        <p className="text-xs text-muted-foreground">
-                          {criterion.description}
-                        </p>
-                      </div>
-                      <div className="text-lg font-semibold text-primary min-w-[3rem] text-center">
-                        {currentScore}/10
-                      </div>
-                    </div>
-                    
-                    <Slider
-                      value={scores[criterion.key]}
-                      onValueChange={(value) => handleScoreChange(criterion.key, value)}
-                      max={10}
-                      min={1}
-                      step={0.5}
-                      className="flex-1"
-                    />
-                    
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Très faible</span>
-                      <span>Excellent</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Feedback */}
-            <div className="space-y-2">
-              <Label htmlFor="feedback">Commentaires (optionnel)</Label>
-              <Textarea
-                id="feedback"
-                placeholder="Partagez vos observations et suggestions pour améliorer ce projet..."
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                className="min-h-[100px]"
+              {/* Feedback */}
+              <FormField
+                control={form.control}
+                name="feedback"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Commentaires</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Partagez vos observations et suggestions pour améliorer ce projet... (20-2000 caractères)"
+                        {...field}
+                        className="min-h-[100px]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            {/* Actions */}
-            <div className="flex justify-end space-x-3 pt-4 border-t">
-              <Button
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Annuler
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="bg-primary hover:bg-primary-dark text-white"
-              >
-                {isSubmitting ? 'Envoi...' : 'Soumettre l\'évaluation'}
-              </Button>
-            </div>
-          </div>
+              {/* Actions */}
+              <div className="flex justify-end space-x-3 pt-4 border-t">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    onOpenChange(false);
+                    form.reset();
+                  }}
+                  disabled={form.formState.isSubmitting}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  className="bg-primary hover:bg-primary-dark text-white"
+                >
+                  {form.formState.isSubmitting ? 'Envoi...' : 'Soumettre l\'évaluation'}
+                </Button>
+              </div>
+            </form>
+          </Form>
         )}
       </DialogContent>
     </Dialog>

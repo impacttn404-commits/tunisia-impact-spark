@@ -38,118 +38,58 @@ serve(async (req) => {
 
     const { product_id, tokens_required }: PurchaseRequest = await req.json();
 
-    console.log('Processing purchase:', { user_id: user.id, product_id, tokens_required });
+    console.log('[PURCHASE_START]', { 
+      timestamp: new Date().toISOString(),
+      user_id: user.id, 
+      product_id, 
+      tokens_required 
+    });
 
-    // Start transaction
-    const { data: profile, error: profileError } = await supabaseClient
-      .from('profiles')
-      .select('tokens_balance')
-      .eq('user_id', user.id)
-      .single();
+    // Use atomic transaction function to prevent race conditions
+    const { data, error } = await supabaseClient.rpc('purchase_product_atomic', {
+      p_user_id: user.id,
+      p_product_id: product_id,
+      p_tokens_required: tokens_required
+    });
 
-    if (profileError || !profile) {
-      console.error('Profile error:', profileError);
-      return new Response(
-        JSON.stringify({ error: 'User profile not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Check if user has enough tokens
-    if (profile.tokens_balance < tokens_required) {
-      return new Response(
-        JSON.stringify({ error: 'Insufficient tokens' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Check product availability
-    const { data: product, error: productError } = await supabaseClient
-      .from('marketplace_products')
-      .select('*')
-      .eq('id', product_id)
-      .eq('is_active', true)
-      .single();
-
-    if (productError || !product) {
-      console.error('Product error:', productError);
-      return new Response(
-        JSON.stringify({ error: 'Product not found or unavailable' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    if (product.stock_quantity <= 0) {
-      return new Response(
-        JSON.stringify({ error: 'Product out of stock' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    if (!product.price_tokens || product.price_tokens !== tokens_required) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid token amount' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Update user tokens balance
-    const { error: updateTokensError } = await supabaseClient
-      .from('profiles')
-      .update({ tokens_balance: profile.tokens_balance - tokens_required })
-      .eq('user_id', user.id);
-
-    if (updateTokensError) {
-      console.error('Update tokens error:', updateTokensError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to update tokens balance' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Update product stock
-    const { error: updateStockError } = await supabaseClient
-      .from('marketplace_products')
-      .update({ stock_quantity: product.stock_quantity - 1 })
-      .eq('id', product_id);
-
-    if (updateStockError) {
-      console.error('Update stock error:', updateStockError);
-      // Rollback tokens balance
-      await supabaseClient
-        .from('profiles')
-        .update({ tokens_balance: profile.tokens_balance })
-        .eq('user_id', user.id);
-      
-      return new Response(
-        JSON.stringify({ error: 'Failed to update product stock' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Create transaction record
-    const { error: transactionError } = await supabaseClient
-      .from('token_transactions')
-      .insert({
+    if (error) {
+      console.error('[PURCHASE_ERROR]', {
+        timestamp: new Date().toISOString(),
         user_id: user.id,
-        amount: -tokens_required,
-        type: 'marketplace_purchase',
-        description: `Achat: ${product.title}`,
-        reference_id: product_id
+        error_message: error.message,
+        error_code: error.code
       });
 
-    if (transactionError) {
-      console.error('Transaction record error:', transactionError);
-      // Don't rollback here as the purchase was successful
+      // Map specific errors to user-friendly messages
+      let statusCode = 400;
+      let userMessage = 'Purchase failed. Please try again.';
+
+      if (error.message.includes('Insufficient tokens')) {
+        userMessage = 'Insufficient tokens for this purchase.';
+      } else if (error.message.includes('Product unavailable')) {
+        userMessage = 'Product is no longer available.';
+        statusCode = 404;
+      } else if (error.message.includes('invalid token amount')) {
+        userMessage = 'Invalid purchase amount.';
+      }
+
+      return new Response(
+        JSON.stringify({ error: userMessage }),
+        { status: statusCode, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    console.log('Purchase completed successfully');
+    console.log('[PURCHASE_SUCCESS]', {
+      timestamp: new Date().toISOString(),
+      user_id: user.id,
+      remaining_tokens: data.remaining_tokens
+    });
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         message: 'Purchase completed successfully',
-        remaining_tokens: profile.tokens_balance - tokens_required
+        remaining_tokens: data.remaining_tokens
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
