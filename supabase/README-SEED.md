@@ -211,23 +211,147 @@ Exemples de modifications :
 
 ---
 
-## 🎯 Workflow recommandé
+## 🗑️ Reset de la base de données
 
-### Développement
+### ⚠️ Utilisation de reset.sql
+
+Le script `supabase/reset.sql` permet de **vider toutes les tables** avant de réinjecter le seed.
+
+**ATTENTION** : Ce script supprime TOUTES les données ! ❌ Ne jamais exécuter en production.
+
+### Prérequis
+- Accès au dashboard Supabase
+- Confirmation que vous êtes sur le bon environnement (dev/test uniquement)
+
+### Étapes d'exécution
+
+1. **Ouvrir l'éditeur SQL Supabase**
+   ```
+   https://supabase.com/dashboard/project/hmxraezyquqslkolaqmk/sql/new
+   ```
+
+2. **Copier-coller le contenu** de `supabase/reset.sql`
+
+3. **Lire attentivement les avertissements** dans le script
+
+4. **Exécuter le script** (bouton "Run")
+
+5. **Vérifier les résultats** - Toutes les tables doivent afficher `0 rows`
+
+### Ce que fait reset.sql
+
+✅ **Supprime les données dans l'ordre suivant** :
+1. `token_transactions` (transactions)
+2. `evaluations` (évaluations)
+3. `marketplace_products` (produits)
+4. `projects` (projets)
+5. `challenges` (défis)
+6. `user_roles` (rôles utilisateurs)
+7. `profiles` (profils)
+
+❌ **Ne touche PAS** :
+- La table `auth.users` (gérée par Supabase Auth)
+- Le schéma de la base (tables, colonnes, types restent en place)
+- Les migrations appliquées
+
+### ⚠️ Notes de sécurité
+
+- ⛔ **Jamais en production** : Les données réelles seraient perdues
+- ✅ **Seulement en dev/test** : Environnements de développement uniquement
+- 💾 **Backup recommandé** : Faites un export avant si nécessaire
+- 🔍 **Vérification projet** : Confirmez que vous êtes sur le bon projet Supabase
+
+---
+
+## 🎯 Workflows recommandés
+
+### Workflow 1 : Reset + Seed (développement rapide)
+
+Utile pour réinitialiser rapidement votre environnement de test.
+
 ```bash
-# 1. Reset database
-npm run supabase:reset  # Si configuré
+# 1. Reset database (vider les données)
+# Via SQL Editor : exécuter supabase/reset.sql
 
-# 2. Run migrations
-npm run supabase:migrate
+# 2. Seed data (réinjecter les données de test)
+# Option A - SQL
+# Via SQL Editor : exécuter supabase/seed.sql
+
+# Option B - TypeScript
+cd supabase/
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGc... deno run \
+  --allow-net \
+  --allow-env \
+  seed.ts
+```
+
+### Workflow 2 : Reset + Migrate + Seed (après changements schéma)
+
+Utile après avoir modifié le schéma de la base (nouvelles tables, colonnes, etc.).
+
+```bash
+# 1. Reset database complet (schéma + données)
+supabase db reset  # Via Supabase CLI - reset complet
+
+# 2. Apply migrations (recréer le schéma)
+supabase db push  # Applique toutes les migrations
 
 # 3. Seed data
-deno run --allow-net --allow-env supabase/seed.ts
+# Via SQL Editor : exécuter supabase/seed.sql
+# OU via seed.ts comme ci-dessus
+```
+
+### Workflow 3 : Seed uniquement (première installation)
+
+Si la base est vide mais le schéma est à jour.
+
+```bash
+# Seed data directement
+# Via SQL Editor : exécuter supabase/seed.sql
+# OU via seed.ts
+```
+
+### Workflow 4 : Cleanup partiel (via seed.ts)
+
+Pour vider les tables de manière programmatique.
+
+```typescript
+// Dans supabase/seed.ts, décommenter les lignes ~15-21
+await clearTable('token_transactions');
+await clearTable('evaluations');
+await clearTable('marketplace_products');
+await clearTable('projects');
+await clearTable('challenges');
+await clearTable('user_roles');
+await clearTable('profiles');
 ```
 
 ### Production
-⚠️ **Ne jamais** utiliser le seed en production !
+⚠️ **Ne jamais** utiliser reset.sql ou seed en production !
 Les données sont fictives et les UUIDs non valides.
+
+---
+
+## 🔄 Commandes CLI Supabase (référence)
+
+Si vous utilisez la [Supabase CLI](https://supabase.com/docs/guides/cli) :
+
+```bash
+# Reset complet (schéma + données) - ⚠️ Destructif !
+supabase db reset
+
+# Appliquer les migrations
+supabase db push
+
+# Générer les types TypeScript
+supabase gen types typescript --local > src/integrations/supabase/types.ts
+
+# Démarrer Supabase local
+supabase start
+
+# Arrêter Supabase local
+supabase stop
+```
 
 ---
 
