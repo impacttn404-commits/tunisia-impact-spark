@@ -263,6 +263,233 @@ Le script `supabase/reset.sql` permet de **vider toutes les tables** avant de r�
 
 ---
 
+## 🤖 Script automatisé : reset-and-seed.sh
+
+### Présentation
+
+Le script `supabase/scripts/reset-and-seed.sh` automatise la séquence complète **reset → seed** avec :
+- ✅ Confirmation interactive de sécurité
+- ✅ Vérifications préliminaires (CLI, Deno, fichiers)
+- ✅ Support SQL et TypeScript
+- ✅ Gestion d'erreurs et fallback manuel
+- ✅ Logs colorés et instructions claires
+
+### Prérequis
+
+**Obligatoires :**
+- [Supabase CLI](https://supabase.com/docs/guides/cli) installé
+- Script exécutable : `chmod +x supabase/scripts/reset-and-seed.sh`
+
+**Optionnels (selon méthode) :**
+- [Deno](https://deno.land/) pour option `--ts`
+- Variable `SUPABASE_SERVICE_ROLE_KEY` pour option `--ts`
+- Variable `SUPABASE_DB_URL` pour exécution automatique
+
+### Usage
+
+```bash
+./supabase/scripts/reset-and-seed.sh [OPTIONS]
+```
+
+### Options disponibles
+
+| Option | Description | Défaut |
+|--------|-------------|--------|
+| `--sql` | Utilise seed.sql pour le seeding | ✅ Par défaut |
+| `--ts` | Utilise seed.ts (nécessite Deno + SERVICE_ROLE_KEY) | ❌ |
+| `--skip-confirm` | Skip la confirmation (⚠️ dangereux, non recommandé) | ❌ |
+
+### Exemples de commandes
+
+#### Exemple 1 : Reset + Seed SQL (recommandé)
+
+```bash
+# Méthode la plus simple - utilise seed.sql
+./supabase/scripts/reset-and-seed.sh
+
+# OU explicitement avec --sql
+./supabase/scripts/reset-and-seed.sh --sql
+```
+
+**Processus :**
+1. ✅ Vérifie que Supabase CLI est installé
+2. ✅ Vérifie que reset.sql et seed.sql existent
+3. ⚠️ Demande confirmation ("YES" requis)
+4. 🗑️ Exécute reset.sql
+5. 📦 Exécute seed.sql
+6. ✨ Affiche résumé et prochaines étapes
+
+#### Exemple 2 : Reset + Seed TypeScript
+
+```bash
+# Export de la service role key
+export SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+# Exécution avec seed.ts
+./supabase/scripts/reset-and-seed.sh --ts
+```
+
+**Avantages seed.ts :**
+- ✅ Gestion d'erreurs programmatique
+- ✅ Logs détaillés par table
+- ✅ Option de cleanup avant insertion
+
+#### Exemple 3 : Skip confirmation (⚠️ usage avancé)
+
+```bash
+# Pour scripts automatisés uniquement - DANGEREUX !
+./supabase/scripts/reset-and-seed.sh --sql --skip-confirm
+```
+
+⚠️ **ATTENTION** : Cette option skip la confirmation interactive. À utiliser UNIQUEMENT dans des scripts CI/CD ou environnements contrôlés.
+
+### Déroulement typique
+
+```
+═══════════════════════════════════════════════════════════
+🔄 Tunisia Impact Spark - Reset & Seed Automation
+═══════════════════════════════════════════════════════════
+
+✅ Vérifications préliminaires OK
+
+⚠️  ═══════════════════════════════════════════════════════════
+⚠️   ATTENTION : Cette action va SUPPRIMER TOUTES LES DONNÉES
+⚠️  ═══════════════════════════════════════════════════════════
+
+Ce script va :
+  1. 🗑️  Vider toutes les tables (reset.sql)
+  2. 📦 Réinjecter les données de test (seed.sql)
+
+Tables affectées :
+  • token_transactions
+  • evaluations
+  • marketplace_products
+  • projects
+  • challenges
+  • user_roles
+  • profiles
+
+⚠️  NE JAMAIS EXÉCUTER EN PRODUCTION !
+
+Êtes-vous ABSOLUMENT SÛR de vouloir continuer? (tapez 'YES' pour confirmer) : YES
+
+✅ Confirmation reçue. Démarrage...
+
+───────────────────────────────────────────────────────────
+📝 Étape 1/2 : Exécution de reset.sql
+───────────────────────────────────────────────────────────
+
+✅ Reset exécuté avec succès
+
+───────────────────────────────────────────────────────────
+📝 Étape 2/2 : Exécution de seed.sql
+───────────────────────────────────────────────────────────
+
+✅ Seed SQL exécuté avec succès
+
+═══════════════════════════════════════════════════════════
+✨ Reset & Seed complété avec succès !
+═══════════════════════════════════════════════════════════
+```
+
+### Fallback manuel
+
+Si le script ne peut pas exécuter automatiquement via CLI/psql :
+
+**Le script affichera des instructions manuelles :**
+```
+⚠️  Impossible d'exécuter automatiquement via CLI
+   Veuillez exécuter manuellement :
+
+1. Ouvrir : https://supabase.com/dashboard/project/hmxraezyquqslkolaqmk/sql/new
+2. Copier-coller le contenu de supabase/reset.sql
+3. Cliquer sur 'Run'
+
+Appuyez sur ENTER après avoir exécuté reset.sql...
+```
+
+Vous suivez alors les étapes manuellement, le script attend votre confirmation avant de continuer.
+
+### Dépannage
+
+#### Erreur : "Supabase CLI n'est pas installé"
+```bash
+# macOS
+brew install supabase/tap/supabase
+
+# Linux/WSL
+curl -fsSL https://supabase.com/install.sh | sh
+
+# Vérification
+supabase --version
+```
+
+#### Erreur : "Deno n'est pas installé" (avec --ts)
+```bash
+# Installation Deno
+curl -fsSL https://deno.land/install.sh | sh
+
+# Ajouter à PATH (ajouter à ~/.bashrc ou ~/.zshrc)
+export PATH="$HOME/.deno/bin:$PATH"
+
+# Vérification
+deno --version
+```
+
+#### Erreur : "SUPABASE_SERVICE_ROLE_KEY non définie" (avec --ts)
+```bash
+# Récupérer la key depuis Supabase Dashboard
+# Settings > API > service_role key
+
+# Export temporaire
+export SUPABASE_SERVICE_ROLE_KEY="eyJhbGc..."
+
+# OU export permanent dans ~/.bashrc ou ~/.zshrc
+echo 'export SUPABASE_SERVICE_ROLE_KEY="eyJhbGc..."' >> ~/.bashrc
+source ~/.bashrc
+```
+
+#### Erreur : "Permission denied"
+```bash
+# Rendre le script exécutable
+chmod +x supabase/scripts/reset-and-seed.sh
+
+# Vérifier les permissions
+ls -l supabase/scripts/reset-and-seed.sh
+```
+
+### Variantes d'utilisation
+
+#### En combinaison avec d'autres commandes
+
+```bash
+# Backup avant reset
+pg_dump "$SUPABASE_DB_URL" > backup_$(date +%Y%m%d_%H%M%S).sql
+./supabase/scripts/reset-and-seed.sh
+
+# Reset + seed + tests
+./supabase/scripts/reset-and-seed.sh --sql
+npm run test
+
+# Dans un script CI/CD
+./supabase/scripts/reset-and-seed.sh --sql --skip-confirm
+npm run test:e2e
+```
+
+#### Avec environnements multiples
+
+```bash
+# Dev environment
+export SUPABASE_DB_URL="postgresql://postgres:dev@localhost:54322/postgres"
+./supabase/scripts/reset-and-seed.sh
+
+# Staging environment
+export SUPABASE_DB_URL="postgresql://postgres:staging@..."
+./supabase/scripts/reset-and-seed.sh
+```
+
+---
+
 ## 🎯 Workflows recommandés
 
 ### Workflow 1 : Reset + Seed (développement rapide)
