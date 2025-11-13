@@ -490,6 +490,330 @@ export SUPABASE_DB_URL="postgresql://postgres:staging@..."
 
 ---
 
+## 💾 Script de backup automatique : backup.sh
+
+### Présentation
+
+Le script `supabase/scripts/backup.sh` permet de créer des **backups automatiques horodatés** de votre base de données avant d'effectuer un reset ou à tout moment pour sauvegarder vos données.
+
+**Fonctionnalités :**
+- ✅ Export CSV de toutes les tables
+- ✅ Export JSON de toutes les tables
+- ✅ Dump SQL complet (pg_dump)
+- ✅ Horodatage automatique (YYYYMMDD_HHMMSS)
+- ✅ Métadonnées de backup (JSON)
+- ✅ Organisation par répertoire daté
+- ✅ Instructions de restauration incluses
+
+### Prérequis
+
+**Obligatoires :**
+- [Supabase CLI](https://supabase.com/docs/guides/cli) installé
+- `psql` (PostgreSQL client) pour exports CSV/JSON et dump SQL
+- Script exécutable : `chmod +x supabase/scripts/backup.sh`
+- Variable `SUPABASE_DB_URL` configurée
+
+**Obtenir SUPABASE_DB_URL :**
+```bash
+# Via Supabase CLI
+supabase status
+
+# OU depuis Dashboard
+# Settings > Database > Connection string (URI)
+```
+
+### Usage
+
+```bash
+./supabase/scripts/backup.sh [OPTIONS]
+```
+
+### Options disponibles
+
+| Option | Description | Défaut |
+|--------|-------------|--------|
+| `--format=csv\|json\|both` | Format d'export des données | `both` |
+| `--output=<dir>` | Répertoire de destination | `supabase/backups` |
+| `--tables=<list>` | Liste de tables (séparées par virgules) | Toutes les tables |
+| `--skip-sql-dump` | Ne pas créer de dump SQL complet | `false` |
+
+### Exemples de commandes
+
+#### Exemple 1 : Backup complet (recommandé)
+
+```bash
+# Backup de toutes les tables en CSV + JSON + SQL dump
+export SUPABASE_DB_URL="postgresql://postgres:password@db.project.supabase.co:5432/postgres"
+./supabase/scripts/backup.sh
+```
+
+**Sortie typique :**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Tunisia Impact Spark - Database Backup
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Checking prerequisites...
+✓ Supabase CLI installed
+✓ psql installed
+✓ Supabase project linked
+✓ Database URL configured
+
+✓ Created backup directory: supabase/backups/20250120_143025
+
+Starting backup process...
+
+Backing up table: profiles
+  ✓ CSV exported: profiles.csv (12 rows)
+  ✓ JSON exported: profiles.json
+
+Backing up table: user_roles
+  ✓ CSV exported: user_roles.csv (15 rows)
+  ✓ JSON exported: user_roles.json
+
+[... autres tables ...]
+
+Creating SQL dump...
+✓ SQL dump created: full_backup.sql (245K)
+
+✓ Metadata file created
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Backup completed successfully!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Backup location:
+  supabase/backups/20250120_143025
+
+Files created:
+  profiles.csv                   2.4K
+  profiles.json                  3.1K
+  challenges.csv                 1.8K
+  challenges.json                2.3K
+  [...]
+  full_backup.sql                245K
+  metadata.json                  156B
+
+Backup size:
+  1.2M
+
+💡 To restore from this backup:
+  1. SQL dump: psql $SUPABASE_DB_URL < supabase/backups/20250120_143025/full_backup.sql
+  2. CSV import: psql $SUPABASE_DB_URL -c "\COPY public.<table> FROM 'supabase/backups/20250120_143025/<table>.csv' CSV HEADER"
+```
+
+#### Exemple 2 : Backup CSV uniquement
+
+```bash
+# Plus rapide si vous n'avez besoin que du CSV
+./supabase/scripts/backup.sh --format=csv
+```
+
+#### Exemple 3 : Backup JSON uniquement
+
+```bash
+# Pour usage programmatique ou import dans d'autres systèmes
+./supabase/scripts/backup.sh --format=json
+```
+
+#### Exemple 4 : Backup de tables spécifiques
+
+```bash
+# Backup seulement quelques tables
+./supabase/scripts/backup.sh --tables=profiles,projects,challenges
+```
+
+#### Exemple 5 : Backup rapide sans SQL dump
+
+```bash
+# Skip le dump SQL pour aller plus vite (garde CSV/JSON)
+./supabase/scripts/backup.sh --skip-sql-dump
+```
+
+#### Exemple 6 : Backup dans répertoire personnalisé
+
+```bash
+# Sauvegarder dans un répertoire différent
+./supabase/scripts/backup.sh --output=/path/to/my/backups
+```
+
+### Structure du backup
+
+Chaque backup crée un répertoire horodaté avec la structure suivante :
+
+```
+supabase/backups/
+└── 20250120_143025/          # Timestamp du backup
+    ├── profiles.csv          # Export CSV de la table profiles
+    ├── profiles.json         # Export JSON de la table profiles
+    ├── user_roles.csv
+    ├── user_roles.json
+    ├── challenges.csv
+    ├── challenges.json
+    ├── projects.csv
+    ├── projects.json
+    ├── evaluations.csv
+    ├── evaluations.json
+    ├── marketplace_products.csv
+    ├── marketplace_products.json
+    ├── token_transactions.csv
+    ├── token_transactions.json
+    ├── full_backup.sql       # Dump SQL complet
+    └── metadata.json         # Métadonnées du backup
+```
+
+### Format metadata.json
+
+```json
+{
+  "timestamp": "2025-01-20T14:30:25Z",
+  "format": "both",
+  "tables": ["profiles", "user_roles", "challenges", "projects", "evaluations", "marketplace_products", "token_transactions"],
+  "backup_dir": "supabase/backups/20250120_143025",
+  "sql_dump_included": true
+}
+```
+
+### Restauration depuis un backup
+
+#### Restauration complète (SQL dump)
+
+```bash
+# Méthode la plus simple - restaure tout
+psql "$SUPABASE_DB_URL" < supabase/backups/20250120_143025/full_backup.sql
+```
+
+#### Restauration sélective (CSV)
+
+```bash
+# Restaurer une table spécifique depuis CSV
+psql "$SUPABASE_DB_URL" -c "\COPY public.profiles FROM 'supabase/backups/20250120_143025/profiles.csv' CSV HEADER"
+
+# Restaurer plusieurs tables
+psql "$SUPABASE_DB_URL" -c "\COPY public.projects FROM 'supabase/backups/20250120_143025/projects.csv' CSV HEADER"
+psql "$SUPABASE_DB_URL" -c "\COPY public.challenges FROM 'supabase/backups/20250120_143025/challenges.csv' CSV HEADER"
+```
+
+#### Restauration programmatique (JSON)
+
+```typescript
+// Exemple avec Supabase JS
+import { createClient } from '@supabase/supabase-js'
+import backupData from './supabase/backups/20250120_143025/profiles.json'
+
+const supabase = createClient(url, serviceRoleKey)
+const { data, error } = await supabase
+  .from('profiles')
+  .insert(backupData)
+```
+
+### Dépannage
+
+#### Erreur : "psql: command not found"
+
+```bash
+# macOS
+brew install postgresql
+
+# Ubuntu/Debian
+sudo apt-get install postgresql-client
+
+# Vérification
+psql --version
+```
+
+#### Erreur : "SUPABASE_DB_URL not set"
+
+```bash
+# Récupérer l'URL depuis Supabase CLI
+supabase status
+
+# OU depuis Dashboard Supabase
+# Settings > Database > Connection string
+
+# Export
+export SUPABASE_DB_URL="postgresql://postgres:password@db.project.supabase.co:5432/postgres"
+
+# Vérifier
+echo $SUPABASE_DB_URL
+```
+
+#### Erreur : "Permission denied"
+
+```bash
+# Rendre le script exécutable
+chmod +x supabase/scripts/backup.sh
+
+# Vérifier
+ls -l supabase/scripts/backup.sh
+```
+
+#### Erreur : "Failed to export table"
+
+Possible causes :
+- Table n'existe pas → vérifiez le nom de la table
+- Permissions insuffisantes → utilisez un user avec droits SELECT
+- Connexion DB impossible → vérifiez SUPABASE_DB_URL
+
+### Bonnes pratiques
+
+#### Backup avant reset
+
+```bash
+# TOUJOURS faire un backup avant reset
+./supabase/scripts/backup.sh
+./supabase/scripts/reset-and-seed.sh
+```
+
+#### Backup automatique quotidien (cron)
+
+```bash
+# Ajouter à crontab (crontab -e)
+0 2 * * * cd /path/to/project && ./supabase/scripts/backup.sh >> backup.log 2>&1
+
+# Backup quotidien à 2h du matin
+```
+
+#### Rotation des backups anciens
+
+```bash
+# Garder seulement les 7 derniers jours
+find supabase/backups/ -type d -mtime +7 -exec rm -rf {} +
+
+# OU archiver les vieux backups
+tar -czf backups_archive_$(date +%Y%m).tar.gz supabase/backups/2025*
+mv backups_archive_*.tar.gz /archives/
+```
+
+#### Backup avant déploiement
+
+```bash
+# Dans votre script de déploiement
+echo "Creating backup before deployment..."
+./supabase/scripts/backup.sh --format=both
+
+if [ $? -eq 0 ]; then
+  echo "Backup successful, proceeding with deployment"
+  # ... deployment commands
+else
+  echo "Backup failed, aborting deployment"
+  exit 1
+fi
+```
+
+### Intégration avec reset-and-seed.sh
+
+```bash
+# Workflow complet avec backup automatique
+./supabase/scripts/backup.sh
+./supabase/scripts/reset-and-seed.sh --sql
+
+# OU en one-liner avec vérification
+./supabase/scripts/backup.sh && ./supabase/scripts/reset-and-seed.sh --sql || echo "Failed"
+```
+
+---
+
 ## 🎯 Workflows recommandés
 
 ### Workflow 1 : Reset + Seed (développement rapide)
