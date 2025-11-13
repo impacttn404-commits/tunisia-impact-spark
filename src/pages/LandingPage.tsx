@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ArrowRight, Star, TrendingUp, UserCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Footer from '@/components/Footer';
+import CommunitySection from '@/components/CommunitySection';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -87,6 +88,9 @@ const LandingPage = () => {
           Connectez évaluateurs, porteurs de projets et investisseurs pour créer un écosystème d'innovation sociale en Tunisie
         </p>
       </section>
+
+      {/* Community Section */}
+      <CommunitySection />
 
       {/* Actor Types CTA */}
       <section 
