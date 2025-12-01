@@ -21,6 +21,9 @@ import CGUPage from "./pages/CGUPage";
 import PolitiqueConfidentialitePage from "./pages/PolitiqueConfidentialitePage";
 import PolitiqueCookiesPage from "./pages/PolitiqueCookiesPage";
 import CommunautePage from "./pages/CommunautePage";
+import EvaluateursPage from "./pages/EvaluateursPage";
+import InvestorAnalyticsPage from "./pages/InvestorAnalyticsPage";
+import TimelinePage from "./pages/TimelinePage";
 
 const queryClient = new QueryClient();
 
@@ -47,11 +50,20 @@ const App = () => (
             
             {/* Public Pages */}
             <Route path="/communaute" element={<CommunautePage />} />
+            <Route path="/evaluateurs" element={<EvaluateursPage />} />
+            <Route path="/timeline" element={<TimelinePage />} />
             <Route path="/criteres" element={<CriteresPage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/comment-ca-marche" element={<CommentCaMarchePage />} />
             <Route path="/partenaires" element={<PartenairesPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            
+            {/* Protected Pages */}
+            <Route path="/investor-analytics" element={
+              <ProtectedRoute>
+                <InvestorAnalyticsPage />
+              </ProtectedRoute>
+            } />
             
             {/* Legal Pages */}
             <Route path="/mentions-legales" element={<MentionsLegalesPage />} />

@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Trophy, Star, TrendingUp, Users, Calendar, ArrowLeft, Award } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Trophy, Star, TrendingUp, Users, Calendar, ArrowLeft, Award, Search, Filter } from 'lucide-react';
 import { useCommunityData } from '@/hooks/useCommunityData';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
+import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import Footer from '@/components/Footer';
@@ -14,12 +17,19 @@ import Footer from '@/components/Footer';
 const CommunautePage = () => {
   const navigate = useNavigate();
   const { winners, topEvaluators, activeChallenge } = useCommunityData();
+  
+  // États pour les filtres
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sectorFilter, setSectorFilter] = useState<string>('all');
+  const [badgeFilter, setBadgeFilter] = useState<string>('all');
+  const [prizeRangeFilter, setPrizeRangeFilter] = useState<string>('all');
+  const [periodFilter, setPeriodFilter] = useState<string>('all');
 
-  // Fetch tous les gagnants
+  // Fetch tous les gagnants avec filtres
   const { data: allWinners = [] } = useQuery({
-    queryKey: ['all-winners'],
+    queryKey: ['all-winners', periodFilter],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('projects')
         .select(`
           id,
@@ -34,23 +44,37 @@ const CommunautePage = () => {
             currency
           )
         `)
-        .eq('is_winner', true)
-        .order('created_at', { ascending: false });
+        .eq('is_winner', true);
+
+      // Filtre par période
+      if (periodFilter !== 'all') {
+        const monthsAgo = parseInt(periodFilter);
+        const startDate = startOfMonth(subMonths(new Date(), monthsAgo));
+        query = query.gte('created_at', startDate.toISOString());
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
       return data;
     },
   });
 
-  // Fetch tous les évaluateurs
+  // Fetch tous les évaluateurs avec filtres
   const { data: allEvaluators = [] } = useQuery({
-    queryKey: ['all-evaluators'],
+    queryKey: ['all-evaluators', badgeFilter],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('profiles')
         .select('id, user_id, first_name, last_name, total_evaluations, badge_level, created_at')
-        .eq('role', 'evaluator')
-        .order('total_evaluations', { ascending: false });
+        .eq('role', 'evaluator');
+
+      // Filtre par badge
+      if (badgeFilter !== 'all') {
+        query = query.eq('badge_level', badgeFilter as 'bronze' | 'silver' | 'gold' | 'platinum');
+      }
+
+      const { data, error } = await query.order('total_evaluations', { ascending: false });
 
       if (error) throw error;
       return data;
@@ -94,6 +118,29 @@ const CommunautePage = () => {
     { name: 'Or', value: allEvaluators.filter(e => e.badge_level === 'gold').length, color: 'hsl(var(--warning))' },
     { name: 'Platine', value: allEvaluators.filter(e => e.badge_level === 'platinum').length, color: 'hsl(var(--primary))' },
   ];
+
+  // Liste des secteurs uniques
+  const uniqueSectors = Array.from(new Set(allWinners.map((w: any) => w.sector)));
+
+  // Filtrer les gagnants
+  const filteredWinners = allWinners.filter((winner: any) => {
+    const matchesSearch =
+      searchTerm === '' ||
+      winner.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      winner.sector.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesSector = sectorFilter === 'all' || winner.sector === sectorFilter;
+    
+    const matchesPrize =
+      prizeRangeFilter === 'all' ||
+      (prizeRangeFilter === 'low' && winner.challenges?.prize_amount < 20000) ||
+      (prizeRangeFilter === 'medium' &&
+        winner.challenges?.prize_amount >= 20000 &&
+        winner.challenges?.prize_amount < 50000) ||
+      (prizeRangeFilter === 'high' && winner.challenges?.prize_amount >= 50000);
+
+    return matchesSearch && matchesSector && matchesPrize;
+  });
 
   const getBadgeColor = (badge: string | null) => {
     switch (badge?.toLowerCase()) {
@@ -140,6 +187,84 @@ const CommunautePage = () => {
             Découvrez les projets primés, les évaluateurs experts, et les statistiques de notre écosystème d'impact social
           </p>
         </div>
+
+        {/* Filtres et Recherche */}
+        <Card className="mb-8 animate-fade-in" style={{ animationDelay: '100ms' }}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="w-5 h-5" />
+              Filtres et Recherche
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="relative lg:col-span-2">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  placeholder="Rechercher un projet..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={sectorFilter} onValueChange={setSectorFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Secteur" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les secteurs</SelectItem>
+                  {uniqueSectors.map((sector) => (
+                    <SelectItem key={sector} value={sector}>
+                      {sector}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={prizeRangeFilter} onValueChange={setPrizeRangeFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Montant cagnotte" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les montants</SelectItem>
+                  <SelectItem value="low">&lt; 20,000 TND</SelectItem>
+                  <SelectItem value="medium">20,000 - 50,000 TND</SelectItem>
+                  <SelectItem value="high">&gt; 50,000 TND</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={periodFilter} onValueChange={setPeriodFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Période" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les périodes</SelectItem>
+                  <SelectItem value="1">Dernier mois</SelectItem>
+                  <SelectItem value="3">3 derniers mois</SelectItem>
+                  <SelectItem value="6">6 derniers mois</SelectItem>
+                  <SelectItem value="12">Dernière année</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {(searchTerm || sectorFilter !== 'all' || prizeRangeFilter !== 'all' || periodFilter !== 'all') && (
+              <div className="mt-4 flex items-center gap-2">
+                <Badge variant="secondary">
+                  {filteredWinners.length} résultat(s)
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSectorFilter('all');
+                    setPrizeRangeFilter('all');
+                    setPeriodFilter('all');
+                  }}
+                >
+                  Réinitialiser les filtres
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Statistiques Globales */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
@@ -248,7 +373,7 @@ const CommunautePage = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {allWinners.map((winner: any, index) => (
+              {filteredWinners.map((winner: any, index) => (
                 <div
                   key={winner.id}
                   className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors border border-border"

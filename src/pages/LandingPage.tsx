@@ -63,13 +63,30 @@ const LandingPage = () => {
           >
             <h1>Impact Tunisia</h1>
           </a>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Button 
               onClick={() => navigate('/communaute')} 
               variant="ghost"
+              size="sm"
               aria-label="Voir la communauté"
             >
               Communauté
+            </Button>
+            <Button 
+              onClick={() => navigate('/evaluateurs')} 
+              variant="ghost"
+              size="sm"
+              aria-label="Voir les évaluateurs"
+            >
+              Évaluateurs
+            </Button>
+            <Button 
+              onClick={() => navigate('/timeline')} 
+              variant="ghost"
+              size="sm"
+              aria-label="Voir la timeline"
+            >
+              Timeline
             </Button>
             <Button 
               onClick={() => navigate('/auth')} 
