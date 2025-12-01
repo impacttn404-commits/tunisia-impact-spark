@@ -63,13 +63,22 @@ const LandingPage = () => {
           >
             <h1>Impact Tunisia</h1>
           </a>
-          <Button 
-            onClick={() => navigate('/auth')} 
-            variant="outline"
-            aria-label="Se connecter à votre compte"
-          >
-            Se connecter
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button 
+              onClick={() => navigate('/communaute')} 
+              variant="ghost"
+              aria-label="Voir la communauté"
+            >
+              Communauté
+            </Button>
+            <Button 
+              onClick={() => navigate('/auth')} 
+              variant="outline"
+              aria-label="Se connecter à votre compte"
+            >
+              Se connecter
+            </Button>
+          </div>
         </nav>
       </header>
 

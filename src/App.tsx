@@ -20,6 +20,7 @@ import MentionsLegalesPage from "./pages/MentionsLegalesPage";
 import CGUPage from "./pages/CGUPage";
 import PolitiqueConfidentialitePage from "./pages/PolitiqueConfidentialitePage";
 import PolitiqueCookiesPage from "./pages/PolitiqueCookiesPage";
+import CommunautePage from "./pages/CommunautePage";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
             } />
             
             {/* Public Pages */}
+            <Route path="/communaute" element={<CommunautePage />} />
             <Route path="/criteres" element={<CriteresPage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/comment-ca-marche" element={<CommentCaMarchePage />} />
