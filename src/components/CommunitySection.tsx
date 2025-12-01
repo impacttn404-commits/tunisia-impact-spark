@@ -6,10 +6,22 @@ import { useCommunityData } from '@/hooks/useCommunityData';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 
 const CommunitySection = () => {
   const { winners, topEvaluators, activeChallenge, isLoading } = useCommunityData();
   const navigate = useNavigate();
+  
+  // Activer les notifications temps réel
+  useRealtimeNotifications();
 
   const getBadgeColor = (badge: string | null) => {
     switch (badge?.toLowerCase()) {
@@ -58,8 +70,8 @@ const CommunitySection = () => {
       </div>
 
       <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-        {/* Derniers Gagnants */}
-        <Card className="border-2 hover:shadow-xl transition-all">
+        {/* Derniers Gagnants - Carrousel */}
+        <Card className="border-2 hover:shadow-xl transition-all animate-fade-in">
           <CardHeader className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
@@ -67,40 +79,66 @@ const CommunitySection = () => {
               </div>
               <div>
                 <CardTitle className="text-xl">Derniers Gagnants</CardTitle>
-                <p className="text-sm text-muted-foreground">Challenge "Innovation 2025"</p>
+                <p className="text-sm text-muted-foreground">Projets primés</p>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {winners.length > 0 ? (
-              winners.map((winner, index) => (
-                <div
-                  key={winner.id}
-                  className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                >
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">
-                    {index + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-sm truncate">{winner.title}</h4>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="secondary" className="text-xs">
-                        {winner.sector}
-                      </Badge>
-                    </div>
-                  </div>
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                plugins={[
+                  Autoplay({
+                    delay: 4000,
+                  }),
+                ]}
+                className="w-full"
+              >
+                <CarouselContent>
+                  {winners.map((winner, index) => (
+                    <CarouselItem key={winner.id}>
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-sm truncate">{winner.title}</h4>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="secondary" className="text-xs">
+                              {winner.sector}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <div className="flex justify-center gap-2 mt-4">
+                  <CarouselPrevious className="static translate-y-0" />
+                  <CarouselNext className="static translate-y-0" />
                 </div>
-              ))
+              </Carousel>
             ) : (
               <p className="text-center text-muted-foreground py-8 text-sm">
                 Aucun gagnant pour le moment
               </p>
             )}
+            <Button 
+              onClick={() => navigate('/communaute')}
+              variant="outline"
+              className="w-full mt-4"
+              size="sm"
+            >
+              Voir tous les gagnants
+            </Button>
           </CardContent>
         </Card>
 
         {/* Top Évaluateurs */}
-        <Card className="border-2 hover:shadow-xl transition-all">
+        <Card className="border-2 hover:shadow-xl transition-all animate-fade-in" style={{ animationDelay: '150ms' }}>
           <CardHeader className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/20 flex items-center justify-center">
@@ -149,7 +187,7 @@ const CommunitySection = () => {
         </Card>
 
         {/* Challenge Actuel */}
-        <Card className="border-2 border-primary/50 hover:shadow-xl transition-all bg-gradient-to-br from-primary/5 to-transparent">
+        <Card className="border-2 border-primary/50 hover:shadow-xl transition-all bg-gradient-to-br from-primary/5 to-transparent animate-fade-in" style={{ animationDelay: '300ms' }}>
           <CardHeader className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">

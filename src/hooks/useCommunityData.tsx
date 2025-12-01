@@ -34,7 +34,7 @@ interface ActiveChallenge {
 }
 
 export const useCommunityData = () => {
-  // Fetch last 3 winners
+  // Fetch last 10 winners for carousel
   const { data: winners, isLoading: winnersLoading } = useQuery({
     queryKey: ['community-winners'],
     queryFn: async () => {
@@ -51,7 +51,7 @@ export const useCommunityData = () => {
         `)
         .eq('is_winner', true)
         .order('created_at', { ascending: false })
-        .limit(3);
+        .limit(10);
 
       if (error) throw error;
       return data as Winner[];
