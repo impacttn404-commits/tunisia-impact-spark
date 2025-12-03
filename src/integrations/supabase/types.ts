@@ -14,6 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          category: string
+          code: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          points: number
+          requirement_type: string
+          requirement_value: number
+          reward_avatar: string | null
+          reward_tokens: number | null
+        }
+        Insert: {
+          category?: string
+          code: string
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          name: string
+          points?: number
+          requirement_type: string
+          requirement_value: number
+          reward_avatar?: string | null
+          reward_tokens?: number | null
+        }
+        Update: {
+          category?: string
+          code?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          points?: number
+          requirement_type?: string
+          requirement_value?: number
+          reward_avatar?: string | null
+          reward_tokens?: number | null
+        }
+        Relationships: []
+      }
+      avatars: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          image_url: string
+          is_default: boolean | null
+          name: string
+          required_achievement_id: string | null
+          required_badge: Database["public"]["Enums"]["badge_level"] | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          image_url: string
+          is_default?: boolean | null
+          name: string
+          required_achievement_id?: string | null
+          required_badge?: Database["public"]["Enums"]["badge_level"] | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          is_default?: boolean | null
+          name?: string
+          required_achievement_id?: string | null
+          required_badge?: Database["public"]["Enums"]["badge_level"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avatars_required_achievement_id_fkey"
+            columns: ["required_achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       challenges: {
         Row: {
           created_at: string
@@ -353,6 +439,42 @@ export type Database = {
           },
         ]
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_achievements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -380,6 +502,10 @@ export type Database = {
     }
     Functions: {
       calculate_user_score: { Args: { _user_id: string }; Returns: number }
+      check_and_unlock_achievements: {
+        Args: { _user_id: string }
+        Returns: string[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

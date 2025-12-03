@@ -24,6 +24,7 @@ import CommunautePage from "./pages/CommunautePage";
 import EvaluateursPage from "./pages/EvaluateursPage";
 import InvestorAnalyticsPage from "./pages/InvestorAnalyticsPage";
 import TimelinePage from "./pages/TimelinePage";
+import AchievementsPage from "./pages/AchievementsPage";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,11 @@ const App = () => (
             <Route path="/investor-analytics" element={
               <ProtectedRoute>
                 <InvestorAnalyticsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/achievements" element={
+              <ProtectedRoute>
+                <AchievementsPage />
               </ProtectedRoute>
             } />
             
