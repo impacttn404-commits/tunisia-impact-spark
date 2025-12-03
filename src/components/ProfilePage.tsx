@@ -2,9 +2,11 @@ import { StatsCard } from "./StatsCard";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Star, TrendingUp, Coins, Trophy, Award, Users, History } from "lucide-react";
+import { Settings, Star, TrendingUp, Coins, Trophy, Award, History, Sparkles, ChevronRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useAchievements } from "@/hooks/useAchievements";
 import { useState, ChangeEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { TokenHistoryPage } from "./TokenHistoryPage";
 import {
   Dialog,
@@ -25,6 +27,8 @@ const roleLabels = {
 
 export const ProfilePage = () => {
   const { profile, updateProfile } = useAuth();
+  const { achievements, userAchievements } = useAchievements();
+  const navigate = useNavigate();
   const [showTokenHistory, setShowTokenHistory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [formData, setFormData] = useState({
@@ -134,6 +138,36 @@ export const ProfilePage = () => {
           </Card>
         </div>
       </div>
+
+      {/* Achievements Button - For Evaluators */}
+      {profile.role === 'evaluator' && (
+        <div className="px-6 mb-6">
+          <Card 
+            className="p-4 bg-gradient-to-r from-purple-500/10 to-amber-500/10 border-purple-500/20 cursor-pointer hover:shadow-md transition-all"
+            onClick={() => navigate('/achievements')}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-amber-500 flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">Mes Achievements</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {userAchievements.length}/{achievements.length} débloqués
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-purple-500/20 text-purple-600 border-purple-500/30">
+                  {userAchievements.length} 🏆
+                </Badge>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Progress Section */}
       <div className="px-6 mb-8">
