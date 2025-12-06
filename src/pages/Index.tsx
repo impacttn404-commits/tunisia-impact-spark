@@ -7,9 +7,15 @@ import { MarketplacePage } from "../components/MarketplacePage";
 import { ProfilePage } from "../components/ProfilePage";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
-import { User, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { User, LogOut, Settings, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const roleLabels: Record<string, string> = {
   evaluator: 'Évaluateur',
@@ -53,25 +59,45 @@ const Index = () => {
           <h1 className="text-lg font-bold text-primary">Tunisia Impact</h1>
           
           {profile && (
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-muted/50 rounded-full px-3 py-1.5">
-                <User className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">
-                  {profile.first_name} {profile.last_name}
-                </span>
-                <Badge variant="secondary" className="text-xs">
-                  {roleLabels[profile.role] || profile.role}
-                </Badge>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleLogout}
-                className="text-muted-foreground hover:text-destructive"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 bg-muted/50 hover:bg-muted rounded-full px-3 py-1.5 transition-colors cursor-pointer">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">
+                    {profile.first_name} {profile.last_name}
+                  </span>
+                  <Badge variant="secondary" className="text-xs">
+                    {roleLabels[profile.role] || profile.role}
+                  </Badge>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-card border border-border z-50">
+                <DropdownMenuItem 
+                  onClick={() => setActiveTab("profile")}
+                  className="cursor-pointer"
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  Paramètres
+                </DropdownMenuItem>
+                {profile.role === 'evaluator' && (
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/achievements')}
+                    className="cursor-pointer"
+                  >
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Achievements
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={handleLogout}
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Déconnexion
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </header>
