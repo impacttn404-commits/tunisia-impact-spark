@@ -7,8 +7,9 @@ import { MarketplacePage } from "../components/MarketplacePage";
 import { ProfilePage } from "../components/ProfilePage";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
-import { User, LogOut, Settings, Sparkles } from "lucide-react";
+import { LogOut, Settings, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +33,10 @@ const Index = () => {
   const handleLogout = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const getInitials = (firstName?: string | null, lastName?: string | null) => {
+    return `${firstName?.charAt(0) ?? ''}${lastName?.charAt(0) ?? ''}`.toUpperCase() || 'U';
   };
 
   const renderPage = () => {
@@ -61,12 +66,19 @@ const Index = () => {
           {profile && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 bg-muted/50 hover:bg-muted rounded-full px-3 py-1.5 transition-colors cursor-pointer">
-                  <User className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground">
+                <button className="flex items-center gap-2 bg-muted/50 hover:bg-muted rounded-full px-2 py-1.5 transition-colors cursor-pointer">
+                  <Avatar className="w-8 h-8 border-2 border-primary/20">
+                    {profile.avatar_url ? (
+                      <AvatarImage src={profile.avatar_url} alt="Avatar" />
+                    ) : null}
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary-light text-white text-xs font-bold">
+                      {getInitials(profile.first_name, profile.last_name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium text-foreground hidden sm:inline">
                     {profile.first_name} {profile.last_name}
                   </span>
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
                     {roleLabels[profile.role] || profile.role}
                   </Badge>
                 </button>
