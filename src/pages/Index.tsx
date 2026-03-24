@@ -5,6 +5,8 @@ import { ProjectsPage } from "../components/ProjectsPage";
 import { ChallengesPage } from "../components/ChallengesPage";
 import { MarketplacePage } from "../components/MarketplacePage";
 import { ProfilePage } from "../components/ProfilePage";
+import { EvaluationsPage } from "../components/EvaluationsPage";
+import { AnalyticsDashboard } from "../components/AnalyticsDashboard";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import { LogOut, Settings, Sparkles } from "lucide-react";
