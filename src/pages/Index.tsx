@@ -49,6 +49,10 @@ const Index = () => {
         return <ProjectsPage />;
       case "challenges":
         return <ChallengesPage />;
+      case "evaluations":
+        return <EvaluationsPage />;
+      case "analytics":
+        return <AnalyticsDashboard />;
       case "marketplace":
         return <MarketplacePage />;
       case "profile":
