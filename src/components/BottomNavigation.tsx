@@ -1,22 +1,36 @@
 import { Home, Search, Trophy, ShoppingBag, User, Star, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 interface BottomNavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
 
-const navItems = [
+type NavItem = {
+  id: string;
+  icon: typeof Home;
+  label: string;
+  roles?: string[]; // if undefined, visible to all
+};
+
+const allNavItems: NavItem[] = [
   { id: "home", icon: Home, label: "Accueil" },
   { id: "projects", icon: Search, label: "Projets" },
   { id: "challenges", icon: Trophy, label: "Challenges" },
-  { id: "evaluations", icon: Star, label: "Évaluations" },
-  { id: "analytics", icon: BarChart3, label: "Analytics" },
+  { id: "evaluations", icon: Star, label: "Évaluations", roles: ["evaluator"] },
+  { id: "analytics", icon: BarChart3, label: "Analytics", roles: ["investor", "evaluator"] },
   { id: "marketplace", icon: ShoppingBag, label: "Marketplace" },
   { id: "profile", icon: User, label: "Profil" },
 ];
 
 export const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => {
+  const { profile } = useAuth();
+  const userRole = profile?.role;
+
+  const navItems = allNavItems.filter(item => 
+    !item.roles || (userRole && item.roles.includes(userRole))
+  );
   return (
     <nav 
       className="fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50"
