@@ -29,8 +29,25 @@ const roleLabels: Record<string, string> = {
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
-  const { profile, signOut } = useAuth();
+  const { user, profile, loading, signOut } = useAuth();
   const navigate = useNavigate();
+
+  if (!loading && user && !profile) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto" />
+          <p className="text-muted-foreground">Profil introuvable. Veuillez vous reconnecter.</p>
+          <button
+            onClick={async () => { await signOut(); navigate('/auth'); }}
+            className="text-primary underline"
+          >
+            Se reconnecter
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleLogout = async () => {
     await signOut();
