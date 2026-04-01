@@ -139,7 +139,7 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
                               </p>
                             </div>
                             <div className="text-lg font-semibold text-primary min-w-[3rem] text-center">
-                              {field.value}/10
+                              {field.value}/5
                             </div>
                           </div>
                           
