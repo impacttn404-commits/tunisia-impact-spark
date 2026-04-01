@@ -111,7 +111,7 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
               <div className="space-y-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-primary mb-1">
-                    {averageScore.toFixed(1)}/10
+                    {averageScore.toFixed(1)}/5
                   </div>
                   <p className="text-sm text-muted-foreground">Score global</p>
                 </div>
