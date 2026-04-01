@@ -80,7 +80,7 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
   };
 
   const scores = form.watch(['impact_score', 'innovation_score', 'viability_score', 'sustainability_score']);
-  const averageScore = scores.reduce((sum, score) => sum + (score || 5), 0) / 4;
+  const averageScore = scores.reduce((sum, score) => sum + (score || 3), 0) / 4;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
