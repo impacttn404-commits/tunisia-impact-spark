@@ -35,23 +35,23 @@ export const evaluationSchema = z.object({
   impact_score: z
     .number()
     .int()
-    .min(0, { message: "Le score doit être entre 0 et 10" })
-    .max(10, { message: "Le score doit être entre 0 et 10" }),
+    .min(1, { message: "Le score doit être entre 1 et 5" })
+    .max(5, { message: "Le score doit être entre 1 et 5" }),
   innovation_score: z
     .number()
     .int()
-    .min(0, { message: "Le score doit être entre 0 et 10" })
-    .max(10, { message: "Le score doit être entre 0 et 10" }),
+    .min(1, { message: "Le score doit être entre 1 et 5" })
+    .max(5, { message: "Le score doit être entre 1 et 5" }),
   viability_score: z
     .number()
     .int()
-    .min(0, { message: "Le score doit être entre 0 et 10" })
-    .max(10, { message: "Le score doit être entre 0 et 10" }),
+    .min(1, { message: "Le score doit être entre 1 et 5" })
+    .max(5, { message: "Le score doit être entre 1 et 5" }),
   sustainability_score: z
     .number()
     .int()
-    .min(0, { message: "Le score doit être entre 0 et 10" })
-    .max(10, { message: "Le score doit être entre 0 et 10" }),
+    .min(1, { message: "Le score doit être entre 1 et 5" })
+    .max(5, { message: "Le score doit être entre 1 et 5" }),
   feedback: z
     .string()
     .trim()

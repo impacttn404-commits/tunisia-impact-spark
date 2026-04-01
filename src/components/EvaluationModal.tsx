@@ -53,10 +53,10 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
   const form = useForm<EvaluationFormData>({
     resolver: zodResolver(evaluationSchema),
     defaultValues: {
-      impact_score: 5,
-      innovation_score: 5,
-      viability_score: 5,
-      sustainability_score: 5,
+      impact_score: 3,
+      innovation_score: 3,
+      viability_score: 3,
+      sustainability_score: 3,
       feedback: ''
     }
   });
@@ -80,7 +80,7 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
   };
 
   const scores = form.watch(['impact_score', 'innovation_score', 'viability_score', 'sustainability_score']);
-  const averageScore = scores.reduce((sum, score) => sum + (score || 5), 0) / 4;
+  const averageScore = scores.reduce((sum, score) => sum + (score || 3), 0) / 4;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -111,7 +111,7 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
               <div className="space-y-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-primary mb-1">
-                    {averageScore.toFixed(1)}/10
+                    {averageScore.toFixed(1)}/5
                   </div>
                   <p className="text-sm text-muted-foreground">Score global</p>
                 </div>
@@ -139,7 +139,7 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
                               </p>
                             </div>
                             <div className="text-lg font-semibold text-primary min-w-[3rem] text-center">
-                              {field.value}/10
+                              {field.value}/5
                             </div>
                           </div>
                           
@@ -147,8 +147,8 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
                             <Slider
                               value={[field.value]}
                               onValueChange={(value) => field.onChange(value[0])}
-                              max={10}
-                              min={0}
+                              max={5}
+                              min={1}
                               step={1}
                               className="flex-1"
                             />
