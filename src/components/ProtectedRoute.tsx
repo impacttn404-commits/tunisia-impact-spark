@@ -25,7 +25,23 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
     return <Navigate to="/auth" replace />;
   }
 
-  if (requiredRole && profile?.role !== requiredRole) {
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-muted-foreground">Profil introuvable. Veuillez vous reconnecter.</p>
+          <button
+            onClick={() => window.location.href = '/auth'}
+            className="text-primary underline"
+          >
+            Retour à la connexion
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (requiredRole && profile.role !== requiredRole) {
     return <Navigate to="/" replace />;
   }
 
