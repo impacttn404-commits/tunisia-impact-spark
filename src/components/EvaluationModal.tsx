@@ -53,10 +53,10 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
   const form = useForm<EvaluationFormData>({
     resolver: zodResolver(evaluationSchema),
     defaultValues: {
-      impact_score: 5,
-      innovation_score: 5,
-      viability_score: 5,
-      sustainability_score: 5,
+      impact_score: 3,
+      innovation_score: 3,
+      viability_score: 3,
+      sustainability_score: 3,
       feedback: ''
     }
   });
