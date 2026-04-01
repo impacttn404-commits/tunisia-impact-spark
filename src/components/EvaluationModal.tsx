@@ -147,8 +147,8 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
                             <Slider
                               value={[field.value]}
                               onValueChange={(value) => field.onChange(value[0])}
-                              max={10}
-                              min={0}
+                              max={5}
+                              min={1}
                               step={1}
                               className="flex-1"
                             />
