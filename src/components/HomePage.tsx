@@ -204,8 +204,8 @@ export const HomePage = () => {
                     </Button>
                   )}
                   
-                  {/* Analytics - uniquement pour investisseurs et admins */}
-                  {(profile?.role === 'investor' || isAdmin) && (
+                  {/* Analytics - investisseurs, évaluateurs et admins */}
+                  {(profile?.role === 'investor' || profile?.role === 'evaluator' || isAdmin) && (
                     <Button 
                       variant="outline" 
                       className="h-auto p-4 justify-start hover:bg-primary/10"
