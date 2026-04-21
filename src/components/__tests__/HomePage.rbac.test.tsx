@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { HomePage } from '../HomePage';
 
 // Mocks
@@ -30,7 +30,7 @@ vi.mock('@/hooks/useAnalytics', () => ({
   }),
 }));
 
-// Stub child sub-pages to avoid pulling their dependencies
+// Stub child sub-pages and bottom nav to avoid pulling their dependencies
 vi.mock('../ChallengesPage', () => ({ ChallengesPage: () => <div /> }));
 vi.mock('../ProjectsPage', () => ({ ProjectsPage: () => <div /> }));
 vi.mock('../MarketplacePage', () => ({ MarketplacePage: () => <div /> }));
@@ -68,17 +68,17 @@ describe('HomePage Quick Actions — RBAC visibility', () => {
     beforeEach(() => setupRole('investor'));
 
     it('shows Analytics, hides Mes évaluations', () => {
-      render(<HomePage />);
-      expect(screen.getByText('Analytics')).toBeInTheDocument();
-      expect(screen.queryByText('Mes évaluations')).not.toBeInTheDocument();
+      const { queryByText } = render(<HomePage />);
+      expect(queryByText('Analytics')).toBeInTheDocument();
+      expect(queryByText('Mes évaluations')).not.toBeInTheDocument();
     });
 
     it('shows shared quick actions', () => {
-      render(<HomePage />);
-      expect(screen.getByText('Voir les projets')).toBeInTheDocument();
-      expect(screen.getByText('Challenges')).toBeInTheDocument();
-      expect(screen.getByText('Marketplace')).toBeInTheDocument();
-      expect(screen.getByText('Mon profil')).toBeInTheDocument();
+      const { queryByText } = render(<HomePage />);
+      expect(queryByText('Voir les projets')).toBeInTheDocument();
+      expect(queryByText('Challenges')).toBeInTheDocument();
+      expect(queryByText('Marketplace')).toBeInTheDocument();
+      expect(queryByText('Mon profil')).toBeInTheDocument();
     });
   });
 
@@ -86,17 +86,17 @@ describe('HomePage Quick Actions — RBAC visibility', () => {
     beforeEach(() => setupRole('projectHolder'));
 
     it('hides both Mes évaluations and Analytics', () => {
-      render(<HomePage />);
-      expect(screen.queryByText('Mes évaluations')).not.toBeInTheDocument();
-      expect(screen.queryByText('Analytics')).not.toBeInTheDocument();
+      const { queryByText } = render(<HomePage />);
+      expect(queryByText('Mes évaluations')).not.toBeInTheDocument();
+      expect(queryByText('Analytics')).not.toBeInTheDocument();
     });
 
     it('still shows shared quick actions', () => {
-      render(<HomePage />);
-      expect(screen.getByText('Voir les projets')).toBeInTheDocument();
-      expect(screen.getByText('Challenges')).toBeInTheDocument();
-      expect(screen.getByText('Marketplace')).toBeInTheDocument();
-      expect(screen.getByText('Mon profil')).toBeInTheDocument();
+      const { queryByText } = render(<HomePage />);
+      expect(queryByText('Voir les projets')).toBeInTheDocument();
+      expect(queryByText('Challenges')).toBeInTheDocument();
+      expect(queryByText('Marketplace')).toBeInTheDocument();
+      expect(queryByText('Mon profil')).toBeInTheDocument();
     });
   });
 
@@ -104,18 +104,18 @@ describe('HomePage Quick Actions — RBAC visibility', () => {
     beforeEach(() => setupRole('evaluator'));
 
     it('shows Mes évaluations and Analytics', () => {
-      render(<HomePage />);
-      expect(screen.getByText('Mes évaluations')).toBeInTheDocument();
-      expect(screen.getByText('Analytics')).toBeInTheDocument();
+      const { queryByText } = render(<HomePage />);
+      expect(queryByText('Mes évaluations')).toBeInTheDocument();
+      expect(queryByText('Analytics')).toBeInTheDocument();
     });
   });
 
-  describe('Admin (any role) override', () => {
+  describe('Admin override', () => {
     beforeEach(() => setupRole('projectHolder', true));
 
     it('admin sees Analytics regardless of base role', () => {
-      render(<HomePage />);
-      expect(screen.getByText('Analytics')).toBeInTheDocument();
+      const { queryByText } = render(<HomePage />);
+      expect(queryByText('Analytics')).toBeInTheDocument();
     });
   });
 
@@ -123,9 +123,9 @@ describe('HomePage Quick Actions — RBAC visibility', () => {
     beforeEach(() => setupRole(null));
 
     it('hides role-restricted quick actions', () => {
-      render(<HomePage />);
-      expect(screen.queryByText('Mes évaluations')).not.toBeInTheDocument();
-      expect(screen.queryByText('Analytics')).not.toBeInTheDocument();
+      const { queryByText } = render(<HomePage />);
+      expect(queryByText('Mes évaluations')).not.toBeInTheDocument();
+      expect(queryByText('Analytics')).not.toBeInTheDocument();
     });
   });
 });

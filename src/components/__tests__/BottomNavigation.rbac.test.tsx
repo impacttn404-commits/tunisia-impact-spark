@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { BottomNavigation } from '../BottomNavigation';
 
 // Mock useAuth to drive role-based scenarios
@@ -23,14 +23,16 @@ describe('BottomNavigation — RBAC visibility', () => {
     beforeEach(() => setRole('investor'));
 
     it('shows shared tabs + Analytics, hides Évaluations', () => {
-      render(<BottomNavigation activeTab="home" onTabChange={() => {}} />);
-      expect(screen.getByLabelText('Naviguer vers Accueil')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Projets')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Challenges')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Marketplace')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Profil')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Analytics')).toBeInTheDocument();
-      expect(screen.queryByLabelText('Naviguer vers Évaluations')).not.toBeInTheDocument();
+      const { queryByLabelText } = render(
+        <BottomNavigation activeTab="home" onTabChange={() => {}} />
+      );
+      expect(queryByLabelText('Naviguer vers Accueil')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Projets')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Challenges')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Marketplace')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Profil')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Analytics')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Évaluations')).not.toBeInTheDocument();
     });
   });
 
@@ -38,14 +40,16 @@ describe('BottomNavigation — RBAC visibility', () => {
     beforeEach(() => setRole('projectHolder'));
 
     it('shows only shared tabs (no Évaluations, no Analytics)', () => {
-      render(<BottomNavigation activeTab="home" onTabChange={() => {}} />);
-      expect(screen.getByLabelText('Naviguer vers Accueil')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Projets')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Challenges')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Marketplace')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Profil')).toBeInTheDocument();
-      expect(screen.queryByLabelText('Naviguer vers Évaluations')).not.toBeInTheDocument();
-      expect(screen.queryByLabelText('Naviguer vers Analytics')).not.toBeInTheDocument();
+      const { queryByLabelText } = render(
+        <BottomNavigation activeTab="home" onTabChange={() => {}} />
+      );
+      expect(queryByLabelText('Naviguer vers Accueil')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Projets')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Challenges')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Marketplace')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Profil')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Évaluations')).not.toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Analytics')).not.toBeInTheDocument();
     });
   });
 
@@ -53,26 +57,29 @@ describe('BottomNavigation — RBAC visibility', () => {
     beforeEach(() => setRole('evaluator'));
 
     it('shows shared tabs + Évaluations + Analytics', () => {
-      render(<BottomNavigation activeTab="home" onTabChange={() => {}} />);
-      expect(screen.getByLabelText('Naviguer vers Accueil')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Projets')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Challenges')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Évaluations')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Analytics')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Marketplace')).toBeInTheDocument();
-      expect(screen.getByLabelText('Naviguer vers Profil')).toBeInTheDocument();
+      const { queryByLabelText } = render(
+        <BottomNavigation activeTab="home" onTabChange={() => {}} />
+      );
+      expect(queryByLabelText('Naviguer vers Accueil')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Projets')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Challenges')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Évaluations')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Analytics')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Marketplace')).toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Profil')).toBeInTheDocument();
     });
   });
 
   describe('Unauthenticated (no profile)', () => {
     beforeEach(() => setRole(null));
 
-    it('hides all role-restricted tabs', () => {
-      render(<BottomNavigation activeTab="home" onTabChange={() => {}} />);
-      expect(screen.queryByLabelText('Naviguer vers Évaluations')).not.toBeInTheDocument();
-      expect(screen.queryByLabelText('Naviguer vers Analytics')).not.toBeInTheDocument();
-      // Public tabs still visible
-      expect(screen.getByLabelText('Naviguer vers Accueil')).toBeInTheDocument();
+    it('hides all role-restricted tabs but keeps public tabs', () => {
+      const { queryByLabelText } = render(
+        <BottomNavigation activeTab="home" onTabChange={() => {}} />
+      );
+      expect(queryByLabelText('Naviguer vers Évaluations')).not.toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Analytics')).not.toBeInTheDocument();
+      expect(queryByLabelText('Naviguer vers Accueil')).toBeInTheDocument();
     });
   });
 });
