@@ -188,31 +188,37 @@ export const HomePage = () => {
                     </div>
                   </Button>
                   
-                  <Button 
-                    variant="outline" 
-                    className="h-auto p-4 justify-start hover:bg-primary/10"
-                    onClick={() => setActiveTab("evaluations")}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 rounded-full bg-warning/10">
-                        <Star className="w-4 h-4 text-warning" />
+                  {/* Évaluations - uniquement pour évaluateurs */}
+                  {profile?.role === 'evaluator' && (
+                    <Button 
+                      variant="outline" 
+                      className="h-auto p-4 justify-start hover:bg-primary/10"
+                      onClick={() => setActiveTab("evaluations")}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 rounded-full bg-warning/10">
+                          <Star className="w-4 h-4 text-warning" />
+                        </div>
+                        <span className="text-sm font-medium">Mes évaluations</span>
                       </div>
-                      <span className="text-sm font-medium">Mes évaluations</span>
-                    </div>
-                  </Button>
+                    </Button>
+                  )}
                   
-                  <Button 
-                    variant="outline" 
-                    className="h-auto p-4 justify-start hover:bg-primary/10"
-                    onClick={() => setActiveTab("analytics")}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 rounded-full bg-info/10">
-                        <BarChart3 className="w-4 h-4 text-info" />
+                  {/* Analytics - uniquement pour investisseurs et admins */}
+                  {(profile?.role === 'investor' || isAdmin) && (
+                    <Button 
+                      variant="outline" 
+                      className="h-auto p-4 justify-start hover:bg-primary/10"
+                      onClick={() => setActiveTab("analytics")}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 rounded-full bg-info/10">
+                          <BarChart3 className="w-4 h-4 text-info" />
+                        </div>
+                        <span className="text-sm font-medium">Analytics</span>
                       </div>
-                      <span className="text-sm font-medium">Analytics</span>
-                    </div>
-                  </Button>
+                    </Button>
+                  )}
                   
                   <Button 
                     variant="outline" 
