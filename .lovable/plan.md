@@ -1,63 +1,51 @@
 
 
-## Diagnostic
-
-**Root cause found**: The two real user accounts (`impactview6@gmail.com` as evaluator, `bee44035@gmail.com` as projectHolder) have **no profile rows** and **no user_roles rows** in the database. The `handle_new_user` trigger likely wasn't active when these accounts were created.
-
-Without a profile, the dashboard can't determine the user's role, causing broken behavior (no role badge, no role-filtered navigation, potentially confusing redirects).
-
-Additionally, some seed data has **mismatched roles** between `profiles` and `user_roles` tables (e.g., alice@example.com is `investor` in profiles but `projectHolder` in user_roles).
-
 ## Plan
 
-### Step 1 — Database migration to fix missing profiles and role mismatches
+### Étape 1 — Mettre à jour les prénoms des comptes de test (data update)
 
-Create a migration that:
-- Inserts missing `profiles` rows for `impactview6@gmail.com` (evaluator) and `bee44035@gmail.com` (projectHolder) using their `auth.users` metadata
-- Inserts missing `user_roles` rows for these users
-- Fixes the mismatched seed data roles (align `user_roles` to match `profiles`)
+Exécuter un UPDATE SQL via l'outil insert pour remplir `first_name` et `last_name` dans la table `profiles` pour les 3 comptes de test :
 
-### Step 2 — Add defensive redirect in ProtectedRoute
+| Email | first_name | last_name |
+|---|---|---|
+| evaluateur@test.com | Ahmed | Ben Ali |
+| investisseur@test.com | Sarra | Trabelsi |
+| porteur@test.com | Mohamed | Jaziri |
 
-Update `src/components/ProtectedRoute.tsx`: if the user is authenticated but has **no profile** (null), redirect to `/auth` or show an error message instead of rendering a broken dashboard. This prevents the current silent failure.
+Cela corrige immédiatement l'affichage "Bienvenue, null!" dans le header du dashboard.
 
-### Step 3 — Add null-safe profile handling in dashboard
+### Étape 2 — Vérifier les onglets pour `investisseur@test.com`
 
-Update `src/pages/Index.tsx` to show a loading/error state if `profile` is null after auth loading completes, rather than rendering a broken UI.
+Se connecter via le navigateur de preview avec `investisseur@test.com` / `Test1234!` et vérifier visuellement la BottomNavigation. Onglets attendus selon les règles RBAC documentées :
 
-## Technical details
+- ✅ Accueil, Projets, Challenges, **Analytics**, Marketplace, Profil
+- ❌ Pas d'onglet "Évaluations" (réservé aux évaluateurs)
+- Bouton **"Créer Challenge"** visible (rôle investisseur)
 
-**Migration SQL (Step 1)**:
+### Étape 3 — Vérifier les onglets pour `porteur@test.com`
+
+Se déconnecter, puis se reconnecter avec `porteur@test.com` / `Test1234!`. Onglets attendus :
+
+- ✅ Accueil, Projets, Challenges, Marketplace, Profil
+- ❌ Pas d'onglet "Évaluations" ni "Analytics"
+- Bouton **"Créer Projet"** visible (rôle porteur)
+
+### Étape 4 — Rapport final
+
+Capturer les observations (header avec prénom correct, onglets conformes, boutons d'action filtrés) et lister tout écart constaté entre le comportement réel et les règles RBAC documentées dans `BottomNavigation.tsx` / `Index.tsx`.
+
+## Détails techniques
+
+**SQL à exécuter (étape 1)** :
 ```sql
--- Insert missing profiles from auth.users metadata
-INSERT INTO profiles (user_id, email, role, first_name, last_name, company_name)
-SELECT id, email, 
-  (raw_user_meta_data->>'role')::user_role,
-  raw_user_meta_data->>'first_name',
-  raw_user_meta_data->>'last_name',
-  raw_user_meta_data->>'company_name'
-FROM auth.users 
-WHERE id NOT IN (SELECT user_id FROM profiles)
-ON CONFLICT DO NOTHING;
-
--- Insert missing user_roles
-INSERT INTO user_roles (user_id, role)
-SELECT id, (raw_user_meta_data->>'role')::app_role
-FROM auth.users 
-WHERE id NOT IN (SELECT user_id FROM user_roles)
-ON CONFLICT DO NOTHING;
-
--- Fix seed data mismatches
-UPDATE user_roles SET role = 'investor' 
-WHERE user_id = '550e8400-e29b-41d4-a716-446655440101' AND role != 'investor';
-UPDATE user_roles SET role = 'projectHolder' 
-WHERE user_id = '550e8400-e29b-41d4-a716-446655440104' AND role != 'projectHolder';
+UPDATE profiles SET first_name = 'Ahmed',   last_name = 'Ben Ali'    WHERE email = 'evaluateur@test.com';
+UPDATE profiles SET first_name = 'Sarra',   last_name = 'Trabelsi'   WHERE email = 'investisseur@test.com';
+UPDATE profiles SET first_name = 'Mohamed', last_name = 'Jaziri'     WHERE email = 'porteur@test.com';
 ```
 
-**ProtectedRoute change (Step 2)**: Add a check after loading — if `user` exists but `profile` is null, show a message or redirect.
+**Outils utilisés** :
+- `supabase` insert tool pour le UPDATE des profils (étape 1)
+- `browser--navigate_to_sandbox` + `browser--act` (saisie identifiants) + `browser--screenshot` / `browser--observe` pour les vérifications visuelles (étapes 2 et 3)
 
-**Files modified**: 
-- New migration SQL file
-- `src/components/ProtectedRoute.tsx`
-- `src/pages/Index.tsx`
+**Aucun changement de code** n'est nécessaire — le composant `Index.tsx` lit déjà `profile.first_name` correctement ; seules les données manquaient.
 
