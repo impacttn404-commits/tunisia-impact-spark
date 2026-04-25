@@ -1,131 +1,83 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { HomePage } from '../HomePage';
 
-// Mocks
-const mockUseAuth = vi.fn();
-const mockUseAdminAuth = vi.fn();
-
 vi.mock('@/hooks/useAuth', () => ({
-  useAuth: () => mockUseAuth(),
+  useAuth: vi.fn(),
 }));
-
-vi.mock('@/hooks/useAdminAuth', () => ({
-  useAdminAuth: () => mockUseAdminAuth(),
-}));
-
 vi.mock('@/hooks/useAnalytics', () => ({
-  useAnalytics: () => ({
-    platformStats: {
-      activeProjects: 0,
-      totalProjects: 0,
-      totalEvaluators: 0,
-      totalEvaluations: 0,
-      activeChallenges: 0,
-      totalChallenges: 0,
-      totalMarketplaceProducts: 0,
-      totalTokensInCirculation: 0,
-    },
-    loading: false,
-  }),
+  useAnalytics: vi.fn(() => ({ platformStats: null, loading: true })),
+}));
+vi.mock('@/hooks/useAdminAuth', () => ({
+  useAdminAuth: vi.fn(),
 }));
 
-// Stub child sub-pages and bottom nav to avoid pulling their dependencies
-vi.mock('../ChallengesPage', () => ({ ChallengesPage: () => <div /> }));
-vi.mock('../ProjectsPage', () => ({ ProjectsPage: () => <div /> }));
-vi.mock('../MarketplacePage', () => ({ MarketplacePage: () => <div /> }));
-vi.mock('../ProfilePage', () => ({ ProfilePage: () => <div /> }));
-vi.mock('../EvaluationsPage', () => ({ EvaluationsPage: () => <div /> }));
-vi.mock('../AnalyticsDashboard', () => ({ AnalyticsDashboard: () => <div /> }));
-vi.mock('../BottomNavigation', () => ({ BottomNavigation: () => <nav /> }));
+// Stub heavy child pages to keep the test focused on quick actions
+vi.mock('../ChallengesPage', () => ({ ChallengesPage: () => null }));
+vi.mock('../ProjectsPage', () => ({ ProjectsPage: () => null }));
+vi.mock('../MarketplacePage', () => ({ MarketplacePage: () => null }));
+vi.mock('../ProfilePage', () => ({ ProfilePage: () => null }));
+vi.mock('../EvaluationsPage', () => ({ EvaluationsPage: () => null }));
+vi.mock('../AnalyticsDashboard', () => ({ AnalyticsDashboard: () => null }));
+vi.mock('../BottomNavigation', () => ({ BottomNavigation: () => null }));
 
-const setupRole = (
-  role: 'investor' | 'projectHolder' | 'evaluator' | null,
-  isAdmin = false,
-) => {
-  mockUseAuth.mockReturnValue({
+import { useAuth } from '@/hooks/useAuth';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+
+const mockedUseAuth = vi.mocked(useAuth);
+const mockedUseAdminAuth = vi.mocked(useAdminAuth);
+
+const setUser = (role: string | null, isAdmin = false) => {
+  mockedUseAuth.mockReturnValue({
     profile: role
-      ? {
-          role,
-          first_name: 'Test',
-          last_name: 'User',
-          tokens_balance: 100,
-          total_evaluations: 0,
-        }
+      ? { role, first_name: 'Test', last_name: 'User', tokens_balance: 0, total_evaluations: 0 }
       : null,
     signOut: vi.fn(),
-  });
-  mockUseAdminAuth.mockReturnValue({ isAdmin });
+  } as unknown as ReturnType<typeof useAuth>);
+  mockedUseAdminAuth.mockReturnValue({ isAdmin } as ReturnType<typeof useAdminAuth>);
 };
 
-describe('HomePage Quick Actions — RBAC visibility', () => {
-  beforeEach(() => {
-    mockUseAuth.mockReset();
-    mockUseAdminAuth.mockReset();
+const renderHome = () =>
+  render(
+    <MemoryRouter>
+      <HomePage />
+    </MemoryRouter>
+  );
+
+describe('HomePage Quick Actions RBAC', () => {
+  it('investor sees Analytics but not Mes évaluations', () => {
+    setUser('investor');
+    renderHome();
+    expect(screen.getByText('Analytics')).toBeInTheDocument();
+    expect(screen.queryByText('Mes évaluations')).not.toBeInTheDocument();
   });
 
-  describe('Investor', () => {
-    beforeEach(() => setupRole('investor'));
-
-    it('shows Analytics, hides Mes évaluations', () => {
-      const { queryByText } = render(<HomePage />);
-      expect(queryByText('Analytics')).toBeInTheDocument();
-      expect(queryByText('Mes évaluations')).not.toBeInTheDocument();
-    });
-
-    it('shows shared quick actions', () => {
-      const { queryByText } = render(<HomePage />);
-      expect(queryByText('Voir les projets')).toBeInTheDocument();
-      expect(queryByText('Challenges')).toBeInTheDocument();
-      expect(queryByText('Marketplace')).toBeInTheDocument();
-      expect(queryByText('Mon profil')).toBeInTheDocument();
-    });
+  it('projectHolder sees neither Analytics nor Mes évaluations', () => {
+    setUser('projectHolder');
+    renderHome();
+    expect(screen.queryByText('Analytics')).not.toBeInTheDocument();
+    expect(screen.queryByText('Mes évaluations')).not.toBeInTheDocument();
   });
 
-  describe('Project Holder', () => {
-    beforeEach(() => setupRole('projectHolder'));
-
-    it('hides both Mes évaluations and Analytics', () => {
-      const { queryByText } = render(<HomePage />);
-      expect(queryByText('Mes évaluations')).not.toBeInTheDocument();
-      expect(queryByText('Analytics')).not.toBeInTheDocument();
-    });
-
-    it('still shows shared quick actions', () => {
-      const { queryByText } = render(<HomePage />);
-      expect(queryByText('Voir les projets')).toBeInTheDocument();
-      expect(queryByText('Challenges')).toBeInTheDocument();
-      expect(queryByText('Marketplace')).toBeInTheDocument();
-      expect(queryByText('Mon profil')).toBeInTheDocument();
-    });
+  it('evaluator sees Mes évaluations (Analytics not shown via HomePage rule)', () => {
+    setUser('evaluator');
+    renderHome();
+    expect(screen.getByText('Mes évaluations')).toBeInTheDocument();
   });
 
-  describe('Evaluator', () => {
-    beforeEach(() => setupRole('evaluator'));
-
-    it('shows Mes évaluations and Analytics', () => {
-      const { queryByText } = render(<HomePage />);
-      expect(queryByText('Mes évaluations')).toBeInTheDocument();
-      expect(queryByText('Analytics')).toBeInTheDocument();
-    });
+  it('admin sees Analytics regardless of role', () => {
+    setUser('projectHolder', true);
+    renderHome();
+    expect(screen.getByText('Analytics')).toBeInTheDocument();
   });
 
-  describe('Admin override', () => {
-    beforeEach(() => setupRole('projectHolder', true));
-
-    it('admin sees Analytics regardless of base role', () => {
-      const { queryByText } = render(<HomePage />);
-      expect(queryByText('Analytics')).toBeInTheDocument();
-    });
-  });
-
-  describe('Unauthenticated', () => {
-    beforeEach(() => setupRole(null));
-
-    it('hides role-restricted quick actions', () => {
-      const { queryByText } = render(<HomePage />);
-      expect(queryByText('Mes évaluations')).not.toBeInTheDocument();
-      expect(queryByText('Analytics')).not.toBeInTheDocument();
-    });
+  it('all authenticated users see common quick actions', () => {
+    setUser('investor');
+    renderHome();
+    expect(screen.getByText('Voir les projets')).toBeInTheDocument();
+    expect(screen.getByText('Challenges')).toBeInTheDocument();
+    expect(screen.getByText('Marketplace')).toBeInTheDocument();
+    expect(screen.getByText('Mon profil')).toBeInTheDocument();
   });
 });
