@@ -45,9 +45,10 @@ describe('TokenHistoryPage header — token balance widget per role (snapshot)',
         screen.getByText('Suivez tous vos gains et dépenses de tokens')
       ).toBeInTheDocument();
 
-      // Balance card
-      expect(screen.getByText(String(balance))).toBeInTheDocument();
-      expect(screen.getByText('Solde actuel')).toBeInTheDocument();
+      // Balance card — locate via label, then read sibling number
+      const soldeLabel = screen.getByText('Solde actuel');
+      const balanceNode = soldeLabel.parentElement?.querySelector('div');
+      expect(balanceNode?.textContent).toBe(String(balance));
 
       // Stats labels — locked wording
       expect(screen.getByText('Gains totaux')).toBeInTheDocument();
