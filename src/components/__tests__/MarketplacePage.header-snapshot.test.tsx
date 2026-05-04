@@ -81,8 +81,9 @@ describe('MarketplacePage header — token balance widget per role (snapshot)', 
 
     render(<MarketplacePage />);
 
-    expect(screen.getByText('0')).toBeInTheDocument();
-    expect(screen.getByText('tokens disponibles')).toBeInTheDocument();
+    const balanceLabel = screen.getByText('tokens disponibles');
+    const balanceNode = balanceLabel.parentElement?.querySelector('div');
+    expect(balanceNode?.textContent).toBe('0');
   });
 
   it('matches locked marketplace header baseline', () => {
