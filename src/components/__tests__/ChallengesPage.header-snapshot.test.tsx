@@ -33,7 +33,7 @@ const FIXTURE_CHALLENGE = {
   created_at: '2026-01-15T00:00:00.000Z',
   end_date: '2026-12-31T00:00:00.000Z',
   created_by: 'sponsor-1',
-} as never;
+};
 
 const renderPage = () =>
   render(
