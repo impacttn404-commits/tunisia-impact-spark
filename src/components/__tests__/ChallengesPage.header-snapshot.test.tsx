@@ -73,7 +73,8 @@ describe('ChallengesPage header — sponsor/projet info per role (snapshot)', ()
 
       // Challenge card identity (title + prize + participation fee)
       expect(screen.getByText('Challenge Impact Vert')).toBeInTheDocument();
-      expect(screen.getByText('50,000 TND')).toBeInTheDocument();
+      // "50,000 TND" appears in both the global stats card and the challenge prize
+      expect(screen.getAllByText('50,000 TND').length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText(/Participation:\s*50 TND/)).toBeInTheDocument();
       expect(screen.getByText('12/50')).toBeInTheDocument();
     }
