@@ -29,7 +29,7 @@ const FIXTURE_PROJECT = {
   average_rating: null,
   created_at: '2026-02-01T00:00:00.000Z',
   holder_id: 'h-1',
-} as never;
+};
 
 const renderModal = () =>
   render(
