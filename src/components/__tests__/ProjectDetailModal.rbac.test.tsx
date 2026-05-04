@@ -26,10 +26,15 @@ const FIXTURE_PROJECT = {
   budget: 25000,
   status: 'submitted',
   total_evaluations: 0,
-  average_rating: null,
+  average_rating: null as number | null,
   created_at: '2026-02-01T00:00:00.000Z',
+  updated_at: '2026-02-01T00:00:00.000Z',
   holder_id: 'h-1',
-};
+  created_by: 'h-1',
+  challenge_id: null,
+  is_winner: false,
+  media_urls: [] as string[],
+} as unknown as Parameters<typeof ProjectDetailModal>[0]['project'];
 
 const renderModal = () =>
   render(
