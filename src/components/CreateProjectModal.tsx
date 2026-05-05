@@ -207,6 +207,116 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
             </div>
           )}
 
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label>Médias (URL externes)</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => appendMedia({ type: 'image', url: '', caption: '' })}
+                  disabled={mediaFields.length >= 10}
+                >
+                  <ImageIcon className="h-4 w-4 mr-1" /> Image
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => appendMedia({ type: 'video', url: '', caption: '' })}
+                  disabled={mediaFields.length >= 10}
+                >
+                  <VideoIcon className="h-4 w-4 mr-1" /> Vidéo
+                </Button>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Collez l'URL d'une image (jpg/png/webp) ou d'une vidéo (mp4/webm). Maximum 10 médias.
+            </p>
+
+            {mediaFields.length === 0 && (
+              <div className="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
+                Aucun média ajouté. Cliquez sur « Image » ou « Vidéo » ci-dessus.
+              </div>
+            )}
+
+            {mediaFields.map((field, index) => {
+              const current = mediaWatch[index];
+              const url = current?.url ?? '';
+              const type = current?.type ?? field.type;
+              const caption = current?.caption ?? '';
+              const isValidUrl = /^https?:\/\//i.test(url);
+              const mediaError = errors.media?.[index];
+
+              return (
+                <div key={field.id} className="rounded-lg border p-3 space-y-2">
+                  <div className="flex items-start gap-3">
+                    <div className="w-28 h-20 flex-shrink-0 rounded-md bg-muted flex items-center justify-center overflow-hidden border">
+                      {isValidUrl && type === 'image' ? (
+                        <img
+                          src={url}
+                          alt={caption || `Aperçu média ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : isValidUrl && type === 'video' ? (
+                        <video
+                          src={url}
+                          className="w-full h-full object-cover"
+                          muted
+                          playsInline
+                          preload="metadata"
+                        />
+                      ) : type === 'video' ? (
+                        <VideoIcon className="h-6 w-6 text-muted-foreground" aria-label="Aperçu vidéo" />
+                      ) : (
+                        <ImageIcon className="h-6 w-6 text-muted-foreground" aria-label="Aperçu image" />
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-2 min-w-0">
+                      <Input
+                        type="url"
+                        placeholder={
+                          type === 'video'
+                            ? 'https://exemple.com/video.mp4'
+                            : 'https://exemple.com/photo.jpg'
+                        }
+                        {...register(`media.${index}.url` as const)}
+                      />
+                      {mediaError?.url && (
+                        <p className="text-sm text-destructive">{mediaError.url.message}</p>
+                      )}
+                      <Input
+                        placeholder="Légende (optionnel)"
+                        maxLength={200}
+                        {...register(`media.${index}.caption` as const)}
+                      />
+                      {mediaError?.caption && (
+                        <p className="text-sm text-destructive">{mediaError.caption.message}</p>
+                      )}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeMedia(index)}
+                      aria-label={`Supprimer le média ${index + 1}`}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+
+            {typeof errors.media?.message === 'string' && (
+              <p className="text-sm text-destructive">{errors.media.message}</p>
+            )}
+          </div>
+
           <div className="flex justify-end space-x-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
               Annuler
