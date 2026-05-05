@@ -103,6 +103,7 @@ describe('CreateProjectModal — submit flow snapshot', () => {
           "objectives": "Listez les objectifs spécifiques de votre projet... (max. 2000 caractères)",
           "title": "Recyclage Intelligent Tunisie",
         },
+        "title": "Créer un nouveau projet",
       }
     `);
   });
