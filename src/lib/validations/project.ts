@@ -29,6 +29,26 @@ export const projectSchema = z.object({
     .optional()
     .nullable(),
   challenge_id: z.string().uuid({ message: "ID de challenge invalide" }).optional().nullable(),
+  media: z
+    .array(
+      z.object({
+        type: z.enum(['image', 'video']),
+        url: z
+          .string()
+          .trim()
+          .url({ message: "URL invalide (doit commencer par http(s)://)" })
+          .max(2000, { message: "URL trop longue" }),
+        caption: z
+          .string()
+          .trim()
+          .max(200, { message: "La légende ne peut pas dépasser 200 caractères" })
+          .optional()
+          .or(z.literal('')),
+      })
+    )
+    .max(10, { message: "Maximum 10 médias" })
+    .optional()
+    .default([]),
 });
 
 export const evaluationSchema = z.object({
