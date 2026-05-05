@@ -29,11 +29,11 @@ describe('CreateProjectModal — submit flow snapshot', () => {
     ).toBeInTheDocument();
 
     // Field labels (captions)
-    expect(screen.getByLabelText(/Titre du projet/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Description/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Secteur/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Budget estimé \(TND\)/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Objectifs détaillés/)).toBeInTheDocument();
+    expect(screen.getByText('Titre du projet *')).toBeInTheDocument();
+    expect(screen.getByText('Description *')).toBeInTheDocument();
+    expect(screen.getByText('Secteur *')).toBeInTheDocument();
+    expect(screen.getByText('Budget estimé (TND)')).toBeInTheDocument();
+    expect(screen.getByText('Objectifs détaillés')).toBeInTheDocument();
 
     // Placeholders
     expect(
