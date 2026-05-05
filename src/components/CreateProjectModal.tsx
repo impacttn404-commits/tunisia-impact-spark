@@ -72,6 +72,10 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
     setLoading(true);
 
     try {
+      const mediaEntries = (data.media ?? []).map((m) =>
+        JSON.stringify({ type: m.type, url: m.url, caption: m.caption ?? '' })
+      );
+
       const projectData: Database['public']['Tables']['projects']['Insert'] = {
         title: data.title,
         description: data.description,
@@ -79,6 +83,7 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
         objectives: data.objectives || null,
         budget: data.budget || null,
         challenge_id: data.challenge_id || null,
+        media_urls: mediaEntries.length > 0 ? mediaEntries : null,
         status: 'draft',
         created_by: '', // Will be set by the hook
       };
