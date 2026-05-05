@@ -38,7 +38,7 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
   const { challenges } = useChallenges();
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<ProjectFormData>({
+  const { register, handleSubmit, control, formState: { errors }, reset, setValue, watch } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       title: '',
@@ -47,8 +47,16 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
       objectives: '',
       budget: null,
       challenge_id: null,
+      media: [],
     }
   });
+
+  const { fields: mediaFields, append: appendMedia, remove: removeMedia } = useFieldArray({
+    control,
+    name: 'media',
+  });
+
+  const mediaWatch = watch('media') ?? [];
 
   const activeChallenges = challenges.filter(c => c.status === 'active');
 
