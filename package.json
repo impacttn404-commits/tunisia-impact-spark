@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:rbac": "vitest run src/components/__tests__/BottomNavigation.rbac.test.tsx src/components/__tests__/HomePage.rbac.test.tsx src/components/__tests__/rbac-ui-regression.test.tsx src/components/__tests__/HomePage.header-snapshot.test.tsx src/components/__tests__/ChallengesPage.header-snapshot.test.tsx src/components/__tests__/ProjectDetailModal.rbac.test.tsx src/components/__tests__/MarketplacePage.header-snapshot.test.tsx src/components/__tests__/TokenHistoryPage.header-snapshot.test.tsx src/__tests__/integration/route-protection.test.tsx",
+    "test:rbac": "vitest run src/components/__tests__/BottomNavigation.rbac.test.tsx src/components/__tests__/HomePage.rbac.test.tsx src/components/__tests__/rbac-ui-regression.test.tsx src/components/__tests__/HomePage.header-snapshot.test.tsx src/components/__tests__/ChallengesPage.header-snapshot.test.tsx src/components/__tests__/ProjectDetailModal.rbac.test.tsx src/components/__tests__/MarketplacePage.header-snapshot.test.tsx src/components/__tests__/TokenHistoryPage.header-snapshot.test.tsx src/components/__tests__/CreateProjectModal.snapshot.test.tsx src/__tests__/integration/route-protection.test.tsx",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
