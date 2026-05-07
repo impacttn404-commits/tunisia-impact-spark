@@ -1,0 +1,47 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ProjectDetailModal — visual snapshot of action buttons per role > evaluator + already evaluated: action set matches snapshot 1`] = `
+{
+  "scenario": "evaluator-already-evaluated",
+  "visible": [
+    "Fermer",
+  ],
+}
+`;
+
+exports[`ProjectDetailModal — visual snapshot of action buttons per role > evaluator + non-evaluable status (winner): action set matches snapshot 1`] = `
+{
+  "scenario": "evaluator-winner-status",
+  "visible": [
+    "Fermer",
+  ],
+}
+`;
+
+exports[`ProjectDetailModal — visual snapshot of action buttons per role > evaluator: visible action buttons match snapshot 1`] = `
+{
+  "role": "evaluator",
+  "visible": [
+    "Évaluer ce projet",
+    "Fermer",
+  ],
+}
+`;
+
+exports[`ProjectDetailModal — visual snapshot of action buttons per role > investor: visible action buttons match snapshot 1`] = `
+{
+  "role": "investor",
+  "visible": [
+    "Fermer",
+  ],
+}
+`;
+
+exports[`ProjectDetailModal — visual snapshot of action buttons per role > projectHolder: visible action buttons match snapshot 1`] = `
+{
+  "role": "projectHolder",
+  "visible": [
+    "Fermer",
+  ],
+}
+`;
