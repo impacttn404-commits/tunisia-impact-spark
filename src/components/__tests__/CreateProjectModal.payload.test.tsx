@@ -3,18 +3,10 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // jsdom polyfills required by Radix Select
-if (!Element.prototype.hasPointerCapture) {
-  // @ts-expect-error jsdom polyfill
-  Element.prototype.hasPointerCapture = () => false;
-}
-if (!Element.prototype.releasePointerCapture) {
-  // @ts-expect-error jsdom polyfill
-  Element.prototype.releasePointerCapture = () => {};
-}
-if (!Element.prototype.scrollIntoView) {
-  // @ts-expect-error jsdom polyfill
-  Element.prototype.scrollIntoView = () => {};
-}
+const proto = Element.prototype as unknown as Record<string, unknown>;
+if (!proto.hasPointerCapture) proto.hasPointerCapture = () => false;
+if (!proto.releasePointerCapture) proto.releasePointerCapture = () => {};
+if (!proto.scrollIntoView) proto.scrollIntoView = () => {};
 
 vi.mock('@/hooks/useProjects', () => ({ useProjects: vi.fn() }));
 vi.mock('@/hooks/useChallenges', () => ({
