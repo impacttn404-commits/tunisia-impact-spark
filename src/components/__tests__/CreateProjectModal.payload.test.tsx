@@ -30,8 +30,9 @@ const fillRequired = async (user: ReturnType<typeof userEvent.setup>) => {
     screen.getByPlaceholderText(/Décrivez votre projet/i),
     'Description complète du projet de test.'
   );
-  // Select the sector (Radix Select renders a single combobox in this modal)
-  await user.click(screen.getByRole('combobox'));
+  // First combobox = sector (second one is challenge, optional)
+  const comboboxes = screen.getAllByRole('combobox');
+  await user.click(comboboxes[0]);
   await user.click(await screen.findByRole('option', { name: 'Énergie' }));
 };
 
