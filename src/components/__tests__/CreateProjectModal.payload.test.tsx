@@ -30,8 +30,8 @@ const fillRequired = async (user: ReturnType<typeof userEvent.setup>) => {
     screen.getByPlaceholderText(/Décrivez votre projet/i),
     'Description complète du projet de test.'
   );
-  // Select the sector via the native trigger -> option
-  await user.click(screen.getByRole('combobox', { name: /Secteur/i }));
+  // Select the sector (Radix Select renders a single combobox in this modal)
+  await user.click(screen.getByRole('combobox'));
   await user.click(await screen.findByRole('option', { name: 'Énergie' }));
 };
 
