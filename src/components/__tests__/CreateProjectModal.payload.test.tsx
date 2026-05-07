@@ -34,7 +34,7 @@ const fillRequired = async (user: ReturnType<typeof userEvent.setup>) => {
   );
   await user.type(
     screen.getByPlaceholderText(/Décrivez votre projet/i),
-    'Description complète du projet de test.'
+    'Description complète et détaillée du projet de test pour validation Zod (>=50 chars).'
   );
   // First combobox = sector (second one is challenge, optional)
   const comboboxes = screen.getAllByRole('combobox');
