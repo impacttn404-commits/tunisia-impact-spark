@@ -1,6 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+// jsdom polyfills required by Radix Select
+if (!Element.prototype.hasPointerCapture) {
+  // @ts-expect-error jsdom polyfill
+  Element.prototype.hasPointerCapture = () => false;
+}
+if (!Element.prototype.releasePointerCapture) {
+  // @ts-expect-error jsdom polyfill
+  Element.prototype.releasePointerCapture = () => {};
+}
+if (!Element.prototype.scrollIntoView) {
+  // @ts-expect-error jsdom polyfill
+  Element.prototype.scrollIntoView = () => {};
+}
 
 vi.mock('@/hooks/useProjects', () => ({ useProjects: vi.fn() }));
 vi.mock('@/hooks/useChallenges', () => ({
