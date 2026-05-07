@@ -71,7 +71,7 @@ describe('CreateProjectModal — submit payload (media_urls format)', () => {
     const payload = createProject.mock.calls[0][0];
     expect(payload).toMatchObject({
       title: 'Mon Projet Test',
-      description: 'Description complète du projet de test.',
+      description: 'Description complète et détaillée du projet de test pour validation Zod (>=50 chars).',
       sector: 'Énergie',
       status: 'draft',
     });
