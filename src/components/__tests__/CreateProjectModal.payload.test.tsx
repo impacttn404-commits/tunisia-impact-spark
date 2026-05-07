@@ -55,7 +55,7 @@ describe('CreateProjectModal — submit payload (media_urls format)', () => {
 
     const urlInputs = screen.getAllByPlaceholderText(/^https:\/\//i);
     const captionInputs = screen.getAllByPlaceholderText(
-      /Légende \(optionnelle\)/i
+      /Légende \(optionnel\)/i
     );
 
     await user.type(urlInputs[0], 'https://cdn.example.com/photo.jpg');
