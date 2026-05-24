@@ -7,6 +7,16 @@ interface ProtectedRouteProps {
   requiredRole?: 'investor' | 'projectHolder' | 'evaluator';
 }
 
+/**
+ * SECURITY NOTICE — UX guard only.
+ *
+ * This component prevents *display* of routes for users without the required role.
+ * It does NOT enforce security: an attacker can bypass it by editing client state.
+ *
+ * Real authorization is enforced server-side by Supabase RLS policies and the
+ * `has_role()` security-definer function. Never rely on this guard to protect
+ * sensitive data — always gate the underlying queries/mutations with RLS.
+ */
 export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   const { user, profile, loading } = useAuth();
 
