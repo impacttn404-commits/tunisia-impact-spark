@@ -9,10 +9,17 @@ interface ProtectedRouteProps {
   fallback?: ReactNode;
 }
 
-export const ProtectedRoute = ({ 
-  children, 
-  requiredRole, 
-  fallback 
+/**
+ * SECURITY NOTICE — UX guard only.
+ *
+ * Hides UI for users without the required role. Does NOT enforce security
+ * (bypassable by editing client state). Real authorization is enforced
+ * server-side via Supabase RLS + `has_role()` security definer function.
+ */
+export const ProtectedRoute = ({
+  children,
+  requiredRole,
+  fallback
 }: ProtectedRouteProps) => {
   const { user, profile, loading } = useAuth();
 
