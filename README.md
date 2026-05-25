@@ -1,4 +1,10 @@
-# Welcome to your Lovable project
+# Tunisia Impact Spark
+
+Plateforme React + Vite + TypeScript + Supabase pour évaluer et valoriser des projets à impact en Tunisie.
+
+- 🔐 Sécurité: voir [SECURITY.md](./SECURITY.md)
+- 🧪 Tests: voir [README-TESTS.md](./README-TESTS.md)
+- 📋 Roadmap active: voir [.lovable/plan.md](./.lovable/plan.md)
 
 ## Project info
 
