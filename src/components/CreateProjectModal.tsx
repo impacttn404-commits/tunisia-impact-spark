@@ -215,8 +215,12 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => appendMedia({ type: 'image', url: '', caption: '' })}
+                  onClick={() => {
+                    if (mediaFields.length >= 10) return;
+                    appendMedia({ type: 'image', url: '', caption: '' });
+                  }}
                   disabled={mediaFields.length >= 10}
+                  aria-disabled={mediaFields.length >= 10}
                 >
                   <ImageIcon className="h-4 w-4 mr-1" /> Image
                 </Button>
@@ -224,8 +228,12 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => appendMedia({ type: 'video', url: '', caption: '' })}
+                  onClick={() => {
+                    if (mediaFields.length >= 10) return;
+                    appendMedia({ type: 'video', url: '', caption: '' });
+                  }}
                   disabled={mediaFields.length >= 10}
+                  aria-disabled={mediaFields.length >= 10}
                 >
                   <VideoIcon className="h-4 w-4 mr-1" /> Vidéo
                 </Button>
@@ -235,11 +243,22 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
               Collez l'URL d'une image (jpg/png/webp) ou d'une vidéo (mp4/webm). Maximum 10 médias.
             </p>
 
+            {mediaFields.length >= 10 && (
+              <p
+                role="alert"
+                className="text-sm text-destructive"
+                data-testid="media-limit-error"
+              >
+                Maximum 10 médias
+              </p>
+            )}
+
             {mediaFields.length === 0 && (
               <div className="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
                 Aucun média ajouté. Cliquez sur « Image » ou « Vidéo » ci-dessus.
               </div>
             )}
+
 
             {mediaFields.map((field, index) => {
               const current = mediaWatch[index];
