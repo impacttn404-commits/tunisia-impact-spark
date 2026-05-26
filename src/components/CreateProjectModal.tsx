@@ -191,12 +191,12 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
           {activeChallenges.length > 0 && (
             <div>
               <Label htmlFor="challenge_id">Challenge associé (optionnel)</Label>
-              <Select value={challengeId || ''} onValueChange={(value) => setValue('challenge_id', value || null)}>
+              <Select value={challengeId || 'none'} onValueChange={(value) => setValue('challenge_id', value === 'none' ? null : value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionnez un challenge" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Aucun challenge</SelectItem>
+                  <SelectItem value="none">Aucun challenge</SelectItem>
                   {activeChallenges.map((challenge) => (
                     <SelectItem key={challenge.id} value={challenge.id}>
                       {challenge.title} - {challenge.prize_amount.toLocaleString()} {challenge.currency}
