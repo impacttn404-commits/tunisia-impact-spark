@@ -87,8 +87,7 @@ describe('CreateProjectModal — media upload error states', () => {
       sector: 'Technologie',
       media: [
         {
-          // @ts-expect-error — intentional invalid enum value to lock the guard
-          type: 'audio',
+          type: 'audio' as unknown as 'image',
           url: 'https://cdn.example.com/p.mp3',
           caption: '',
         },
