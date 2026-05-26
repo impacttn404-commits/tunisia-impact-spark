@@ -79,6 +79,72 @@ export const ProjectDetailModal = ({ open, onOpenChange, project }: ProjectDetai
               </div>
             </div>
 
+            {/* Media gallery (image/video URLs submitted with the project) */}
+            {(() => {
+              const raw = project.media_urls ?? [];
+              const items = raw
+                .map((entry) => {
+                  try {
+                    const parsed = JSON.parse(entry) as {
+                      type?: string;
+                      url?: string;
+                      caption?: string;
+                    };
+                    if (!parsed?.url) return null;
+                    const type: 'image' | 'video' =
+                      parsed.type === 'video' ? 'video' : 'image';
+                    return {
+                      type,
+                      url: parsed.url,
+                      caption: parsed.caption ?? '',
+                    };
+                  } catch {
+                    return null;
+                  }
+                })
+                .filter((m): m is { type: 'image' | 'video'; url: string; caption: string } => m !== null);
+
+              if (items.length === 0) return null;
+
+              return (
+                <section aria-label="Médias du projet" data-testid="project-media">
+                  <h3 className="font-semibold text-lg mb-3">Médias</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {items.map((m, i) => (
+                      <figure
+                        key={`${m.url}-${i}`}
+                        className="rounded-lg overflow-hidden border bg-muted"
+                        data-testid={`project-media-item-${i}`}
+                      >
+                        {m.type === 'image' ? (
+                          <img
+                            src={m.url}
+                            alt={m.caption || `Média ${i + 1}`}
+                            className="w-full h-32 object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <video
+                            src={m.url}
+                            controls
+                            preload="metadata"
+                            className="w-full h-32 object-cover"
+                            aria-label={m.caption || `Vidéo ${i + 1}`}
+                          />
+                        )}
+                        {m.caption && (
+                          <figcaption className="text-xs text-muted-foreground p-2">
+                            {m.caption}
+                          </figcaption>
+                        )}
+                      </figure>
+                    ))}
+                  </div>
+                </section>
+              );
+            })()}
+
+
             {/* Project Info */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-4">
