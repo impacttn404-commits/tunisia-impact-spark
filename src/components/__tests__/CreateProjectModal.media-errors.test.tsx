@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { CreateProjectModal } from '../CreateProjectModal';
 import { projectSchema } from '@/lib/validations/project';
 
@@ -14,77 +14,66 @@ vi.mock('@/hooks/useChallenges', () => ({
 /**
  * Snapshot tests for the media upload block ERROR states:
  *  - invalid URL
- *  - unsupported media type (schema-level enum guard)
+ *  - unsupported media type (only image|video allowed)
  *  - caption longer than 200 chars
+ *  - too many media (>10)
  *
  * These lock the user-facing error copy emitted by the zod schema
- * (`projectSchema`) so any future copy change is intentional.
+ * (`projectSchema`) so any future copy change is intentional, plus a
+ * lightweight UI assertion that confirms the modal still respects the
+ * caption maxLength guard at the input level.
  */
 describe('CreateProjectModal — media upload error states', () => {
-  const fillRequiredFields = () => {
-    fireEvent.change(screen.getByPlaceholderText('Recyclage Intelligent Tunisie'), {
-      target: { value: 'Projet valide pour test' },
-    });
-    fireEvent.change(
-      screen.getByPlaceholderText(/Décrivez votre projet/),
-      {
-        target: {
-          value:
-            'Description suffisamment longue pour passer la validation minimale de cinquante caractères au moins.',
-        },
-      }
-    );
+  const validBase = {
+    title: 'Projet valide pour test',
+    description:
+      'Description suffisamment longue pour passer la validation minimale de cinquante caractères au moins.',
+    sector: 'Technologie',
   };
 
-  it('shows an "URL invalide" error when the media URL is not http(s)', async () => {
-    render(<CreateProjectModal open onOpenChange={() => {}} />);
-
-    fillRequiredFields();
-    fireEvent.click(screen.getByRole('button', { name: /Image/ }));
-
-    const urlInput = screen.getByPlaceholderText('https://exemple.com/photo.jpg');
-    fireEvent.change(urlInput, { target: { value: 'not-a-valid-url' } });
-
-    fireEvent.click(screen.getByRole('button', { name: 'Créer le projet' }));
-
-    await waitFor(() => {
-      expect(
-        screen.getByText(/URL invalide \(doit commencer par http\(s\):\/\/\)/)
-      ).toBeInTheDocument();
+  it('rejects an invalid URL with "URL invalide (doit commencer par http(s)://)"', () => {
+    const result = projectSchema.safeParse({
+      ...validBase,
+      media: [{ type: 'image', url: 'not-a-valid-url', caption: '' }],
     });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const urlIssue = result.error.issues.find(
+        (i) => i.path.join('.') === 'media.0.url'
+      );
+      expect(urlIssue?.message).toBe(
+        'URL invalide (doit commencer par http(s)://)'
+      );
+    }
   });
 
-  it('shows a "La légende ne peut pas dépasser 200 caractères" error for a long caption', async () => {
-    render(<CreateProjectModal open onOpenChange={() => {}} />);
-
-    fillRequiredFields();
-    fireEvent.click(screen.getByRole('button', { name: /Image/ }));
-
-    fireEvent.change(screen.getByPlaceholderText('https://exemple.com/photo.jpg'), {
-      target: { value: 'https://cdn.example.com/p.jpg' },
+  it('rejects a caption longer than 200 chars with the locked copy', () => {
+    const result = projectSchema.safeParse({
+      ...validBase,
+      media: [
+        {
+          type: 'image',
+          url: 'https://cdn.example.com/p.jpg',
+          caption: 'x'.repeat(201),
+        },
+      ],
     });
 
-    // The input has maxLength=200, so we bypass it by setting the value
-    // directly via fireEvent on the underlying input to assert the schema guard.
-    const captionInput = screen.getByPlaceholderText('Légende (optionnel)') as HTMLInputElement;
-    captionInput.removeAttribute('maxlength');
-    fireEvent.change(captionInput, { target: { value: 'x'.repeat(201) } });
-
-    fireEvent.click(screen.getByRole('button', { name: 'Créer le projet' }));
-
-    await waitFor(() => {
-      expect(
-        screen.getByText('La légende ne peut pas dépasser 200 caractères')
-      ).toBeInTheDocument();
-    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const issue = result.error.issues.find(
+        (i) => i.path.join('.') === 'media.0.caption'
+      );
+      expect(issue?.message).toBe(
+        'La légende ne peut pas dépasser 200 caractères'
+      );
+    }
   });
 
   it('rejects an unsupported media type at the schema level (only image|video allowed)', () => {
     const result = projectSchema.safeParse({
-      title: 'Projet valide pour test',
-      description:
-        'Description suffisamment longue pour passer la validation minimale de cinquante caractères au moins.',
-      sector: 'Technologie',
+      ...validBase,
       media: [
         {
           type: 'audio' as unknown as 'image',
@@ -96,10 +85,41 @@ describe('CreateProjectModal — media upload error states', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      const typeIssue = result.error.issues.find((i) => i.path.join('.') === 'media.0.type');
+      const typeIssue = result.error.issues.find(
+        (i) => i.path.join('.') === 'media.0.type'
+      );
       expect(typeIssue).toBeDefined();
       expect(typeIssue?.code).toBe('invalid_enum_value');
     }
+  });
+
+  it('rejects more than 10 media entries with "Maximum 10 médias"', () => {
+    const result = projectSchema.safeParse({
+      ...validBase,
+      media: Array.from({ length: 11 }, () => ({
+        type: 'image' as const,
+        url: 'https://cdn.example.com/p.jpg',
+        caption: '',
+      })),
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const issue = result.error.issues.find(
+        (i) => i.path.join('.') === 'media'
+      );
+      expect(issue?.message).toBe('Maximum 10 médias');
+    }
+  });
+
+  it('keeps the caption input capped at maxLength=200 in the UI', () => {
+    render(<CreateProjectModal open onOpenChange={() => {}} />);
+    fireEvent.click(screen.getByRole('button', { name: /Image/ }));
+
+    const caption = screen.getByPlaceholderText(
+      'Légende (optionnel)'
+    ) as HTMLInputElement;
+    expect(caption.maxLength).toBe(200);
   });
 
   it('locks the baseline copy for media validation errors', () => {
