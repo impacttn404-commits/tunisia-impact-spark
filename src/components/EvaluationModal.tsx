@@ -151,6 +151,7 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
                               min={1}
                               step={1}
                               className="flex-1"
+                              data-testid={`evaluation-slider-${criterion.key}`}
                             />
                           </FormControl>
                           
