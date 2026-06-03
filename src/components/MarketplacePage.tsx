@@ -162,7 +162,7 @@ export const MarketplacePage = () => {
                       onClick={() => handlePurchase(product.id, product.price_tokens!)}
                       data-testid={`buy-with-tokens-${product.id}`}
                       disabled={
-                        product.stock_quantity <= 0 || 
+                        (product.stock_quantity ?? 0) <= 0 || 
                         !profile || 
                         profile.tokens_balance < product.price_tokens
                       }
