@@ -177,7 +177,7 @@ export const MarketplacePage = () => {
                     <Button 
                       size="sm" 
                       className="w-full bg-accent hover:bg-accent-dark text-white"
-                      disabled={product.stock_quantity <= 0}
+                      disabled={(product.stock_quantity ?? 0) <= 0}
                     >
                       <ShoppingBag className="w-4 h-4 mr-2" />
                       {product.price_tnd} TND
