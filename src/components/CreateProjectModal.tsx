@@ -111,7 +111,7 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
           <DialogTitle>Créer un nouveau projet</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" data-testid="create-project-form">
           <div className="grid grid-cols-1 gap-4">
             <div>
               <Label htmlFor="title">Titre du projet *</Label>
@@ -119,6 +119,7 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
                 id="title"
                 {...register('title')}
                 placeholder="Recyclage Intelligent Tunisie"
+                data-testid="project-title-input"
               />
               {errors.title && (
                 <p className="text-sm text-destructive mt-1">{errors.title.message}</p>
