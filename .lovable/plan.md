@@ -46,12 +46,12 @@
 - ✅ E2E 3: `e2e/03-marketplace-purchase.spec.ts` (RPC `purchase_product_atomic` mocké)
 - ✅ Job CI `e2e` headless avec upload `playwright-report` (vidéos sur échec)
 - ✅ `e2e/README.md` documenté
-- ⚠️ Sprint 2.1 (suite): ajouter `data-testid` sur CreateProjectModal / EvaluationModal / MarketplacePage pour transformer les `TODO` en assertions UI réelles
+- ✅ Sprint 2.1: `data-testid` ajoutés sur `CreateProjectModal` (form, title, description, submit), `EvaluationModal` (4 sliders, submit) et `MarketplacePage` (card produit, bouton tokens). Specs E2E peuvent désormais remplacer les `TODO` par des assertions UI réelles.
 
 **Validation pour passer au sprint 3:**
 - ✅ `npm run test:e2e` vert en CI (mock pipeline)
 - ✅ Artefact `playwright-report` accessible
-- ⚠️ Sprint 2.1: assertions UI complètes (data-testid ajoutés)
+- ✅ Sprint 2.1 hooks UI en place (data-testid)
 
 ---
 

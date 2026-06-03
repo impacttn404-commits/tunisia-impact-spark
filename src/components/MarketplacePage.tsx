@@ -119,7 +119,7 @@ export const MarketplacePage = () => {
           </Card>
         ) : (
           filteredProducts.map((product) => (
-            <Card key={product.id} className="overflow-hidden shadow-lg border-0">
+            <Card key={product.id} className="overflow-hidden shadow-lg border-0" data-testid={`marketplace-product-${product.id}`}>
               <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 relative">
                 {product.image_url && (
                   <img 
@@ -160,6 +160,7 @@ export const MarketplacePage = () => {
                       size="sm" 
                       className="w-full bg-primary/10 text-primary border-primary/30 hover:bg-primary hover:text-white"
                       onClick={() => handlePurchase(product.id, product.price_tokens!)}
+                      data-testid={`buy-with-tokens-${product.id}`}
                       disabled={
                         product.stock_quantity <= 0 || 
                         !profile || 

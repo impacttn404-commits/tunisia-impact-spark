@@ -151,6 +151,7 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
                               min={1}
                               step={1}
                               className="flex-1"
+                              data-testid={`evaluation-slider-${criterion.key}`}
                             />
                           </FormControl>
                           
@@ -202,6 +203,7 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
                   type="submit"
                   disabled={form.formState.isSubmitting}
                   className="bg-primary hover:bg-primary-dark text-white"
+                  data-testid="submit-evaluation-button"
                 >
                   {form.formState.isSubmitting ? 'Envoi...' : 'Soumettre l\'évaluation'}
                 </Button>
