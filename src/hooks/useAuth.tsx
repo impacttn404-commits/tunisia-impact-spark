@@ -27,13 +27,13 @@ interface Profile {
   id: string;
   user_id: string;
   role: 'investor' | 'projectHolder' | 'evaluator';
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  phone?: string;
-  avatar_url?: string;
-  company_name?: string;
-  badge_level?: 'bronze' | 'silver' | 'gold' | 'platinum';
+  first_name?: string | null;
+  last_name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  avatar_url?: string | null;
+  company_name?: string | null;
+  badge_level?: 'bronze' | 'silver' | 'gold' | 'platinum' | null;
   tokens_balance: number;
   total_evaluations: number;
 }
@@ -125,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      setProfile(data);
+      setProfile(data as unknown as Profile | null);
     } catch (error) {
       console.error('Error fetching profile:', error);
     }

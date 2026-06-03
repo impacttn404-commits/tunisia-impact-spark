@@ -31,7 +31,7 @@ interface Avatar {
   category: string;
   required_badge: string | null;
   required_achievement_id: string | null;
-  is_default: boolean;
+  is_default: boolean | null;
 }
 
 export const useAchievements = () => {

@@ -128,7 +128,7 @@ export const MarketplacePage = () => {
                     className="w-full h-full object-cover"
                   />
                 )}
-                {product.stock_quantity <= 0 && (
+                {(product.stock_quantity ?? 0) <= 0 && (
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                     <Badge variant="destructive">Rupture de stock</Badge>
                   </div>
@@ -162,7 +162,7 @@ export const MarketplacePage = () => {
                       onClick={() => handlePurchase(product.id, product.price_tokens!)}
                       data-testid={`buy-with-tokens-${product.id}`}
                       disabled={
-                        product.stock_quantity <= 0 || 
+                        (product.stock_quantity ?? 0) <= 0 || 
                         !profile || 
                         profile.tokens_balance < product.price_tokens
                       }
@@ -177,7 +177,7 @@ export const MarketplacePage = () => {
                     <Button 
                       size="sm" 
                       className="w-full bg-accent hover:bg-accent-dark text-white"
-                      disabled={product.stock_quantity <= 0}
+                      disabled={(product.stock_quantity ?? 0) <= 0}
                     >
                       <ShoppingBag className="w-4 h-4 mr-2" />
                       {product.price_tnd} TND

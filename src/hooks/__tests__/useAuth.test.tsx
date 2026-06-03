@@ -187,7 +187,7 @@ describe('useAuth', () => {
       mockGetUser.mockResolvedValue({
         data: { user: null },
         error: null,
-      });
+      } as unknown as Awaited<ReturnType<typeof supabase.auth.getUser>>);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
