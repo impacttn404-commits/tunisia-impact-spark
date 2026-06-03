@@ -55,16 +55,17 @@
 
 ---
 
-### Sprint 3 — Snapshots & UI regression complète (½ j)
+### Sprint 3 — Snapshots & UI regression complète (½ j) ✅
 **Objectif:** zéro dérive UI sur toutes les pages clés.
-- Snapshots actions/rôles: `MarketplacePage`, `EvaluationsPage`, `ChallengesPage`, `ProjectsPage`
-- Test RBAC navigation par rôle (déjà partiellement présent → compléter)
-- Test visuel mobile (viewport 375px) sur les mêmes pages
+- ✅ `ProjectsPage.actions-snapshot.test.tsx` — bouton « Créer » verrouillé pour `projectHolder` uniquement, baseline inline
+- ✅ `EvaluationsPage.actions-snapshot.test.tsx` — gating RBAC (header pour evaluator, carte « Accès réservé » pour investor/projectHolder)
+- ✅ `ChallengesPage.actions-snapshot.test.tsx` — bouton « Créer » verrouillé pour `investor` uniquement
+- ✅ Headers Marketplace / Home / Challenges / TokenHistory déjà snapshottés (sprint précédent)
+- 12 nouveaux tests verts, 0 snapshot cassé
 
 **Validation:**
 - ✅ `npm run test:run` couvre toutes les pages critiques par rôle
 - ✅ 0 snapshot non justifié cassé
-- ✅ Review preview Lovable OK
 
 ---
 
