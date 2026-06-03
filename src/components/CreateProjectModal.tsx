@@ -342,7 +342,7 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
               Annuler
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} data-testid="submit-project-button">
               {loading ? "Création..." : "Créer le projet"}
             </Button>
           </div>
