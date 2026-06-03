@@ -133,6 +133,7 @@ export const CreateProjectModal = ({ open, onOpenChange }: CreateProjectModalPro
                 {...register('description')}
                 placeholder="Décrivez votre projet, son impact et ses objectifs... (min. 50 caractères)"
                 rows={4}
+                data-testid="project-description-input"
               />
               {errors.description && (
                 <p className="text-sm text-destructive mt-1">{errors.description.message}</p>
