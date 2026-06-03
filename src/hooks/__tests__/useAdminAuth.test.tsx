@@ -26,7 +26,7 @@ describe('useAdminAuth', () => {
     mockGetUser.mockResolvedValue({
       data: { user: null },
       error: null,
-    });
+    } as Awaited<ReturnType<typeof supabase.auth.getUser>>);
 
     const { result } = renderHook(() => useAdminAuth());
 
@@ -39,7 +39,7 @@ describe('useAdminAuth', () => {
     mockGetUser.mockResolvedValue({
       data: { user: null },
       error: null,
-    });
+    } as Awaited<ReturnType<typeof supabase.auth.getUser>>);
 
     const { result } = renderHook(() => useAdminAuth());
 
