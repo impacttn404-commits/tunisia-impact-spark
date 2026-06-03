@@ -125,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      setProfile(data);
+      setProfile(data as unknown as Profile | null);
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
