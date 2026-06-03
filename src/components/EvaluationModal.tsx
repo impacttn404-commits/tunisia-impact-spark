@@ -203,6 +203,7 @@ export const EvaluationModal = ({ open, onOpenChange, project }: EvaluationModal
                   type="submit"
                   disabled={form.formState.isSubmitting}
                   className="bg-primary hover:bg-primary-dark text-white"
+                  data-testid="submit-evaluation-button"
                 >
                   {form.formState.isSubmitting ? 'Envoi...' : 'Soumettre l\'évaluation'}
                 </Button>
