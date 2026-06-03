@@ -128,7 +128,7 @@ export const MarketplacePage = () => {
                     className="w-full h-full object-cover"
                   />
                 )}
-                {product.stock_quantity <= 0 && (
+                {(product.stock_quantity ?? 0) <= 0 && (
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                     <Badge variant="destructive">Rupture de stock</Badge>
                   </div>
