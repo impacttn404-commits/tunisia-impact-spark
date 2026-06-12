@@ -25,7 +25,7 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('ProtectedRoute', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockedUseAuth.mockReset();
   });
 
   it('should show loading state when loading', () => {
