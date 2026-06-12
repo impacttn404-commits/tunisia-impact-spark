@@ -24,6 +24,27 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 describe('useAuth', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Restore default auth + query mocks so per-test overrides don't leak between tests
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: null },
+      error: null,
+    } as any);
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: null },
+      error: null,
+    } as any);
+    vi.mocked(supabase.auth.onAuthStateChange).mockImplementation(
+      ((callback: any) => {
+        if (typeof callback === 'function') {
+          queueMicrotask(() => callback('INITIAL_SESSION', null));
+        }
+        return {
+          data: {
+            subscription: { id: 'mock', callback, unsubscribe: vi.fn() },
+          },
+        };
+      }) as any
+    );
   });
 
   describe('signUp', () => {
