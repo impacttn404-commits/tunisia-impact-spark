@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(),
@@ -9,6 +8,7 @@ vi.mock('@/hooks/useAuth', () => ({
 }));
 
 import { useAuth } from '@/hooks/useAuth';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 const mockedUseAuth = vi.mocked(useAuth);
 
