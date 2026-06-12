@@ -76,10 +76,10 @@ describe('SEO Tests', () => {
 
   describe('Content Optimization', () => {
     it('should have descriptive text content', () => {
-      const { getByText } = renderWithRouter(<LandingPage />);
+      const { getByText, getAllByText } = renderWithRouter(<LandingPage />);
       
       expect(getByText(/Rejoignez la communauté/i)).toBeInTheDocument();
-      expect(getByText(/impact social/i)).toBeInTheDocument();
+      expect(getAllByText(/impact social/i).length).toBeGreaterThan(0);
     });
 
     it('should have call-to-action buttons with descriptive labels', () => {
