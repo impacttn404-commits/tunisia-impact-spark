@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ReactNode } from 'react';
@@ -162,18 +162,28 @@ describe('useAuth', () => {
       const mockFrom = vi.mocked(supabase.from);
       mockFrom.mockReturnValue({
         update: vi.fn().mockReturnValue({ eq: mockEq }),
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+          }),
+        }),
       } as any);
 
-      const mockGetUser = vi.mocked(supabase.auth.getUser);
-      mockGetUser.mockResolvedValue({
-        data: { user: { id: 'user-123' } as any },
+      const mockGetSession = vi.mocked(supabase.auth.getSession);
+      mockGetSession.mockResolvedValue({
+        data: {
+          session: {
+            user: { id: 'user-123' } as any,
+            access_token: 'token',
+          } as any,
+        },
         error: null,
-      });
+      } as any);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
       await waitFor(() => {
-        expect(result.current.loading).toBe(false);
+        expect(result.current.user).not.toBeNull();
       });
 
       const updateData = { first_name: 'Jane', last_name: 'Smith' };
@@ -236,9 +246,11 @@ describe('useAuth', () => {
       };
 
       // Simulate auth state change
-      if (authCallback) {
-        authCallback('SIGNED_IN', mockSession);
-      }
+      await act(async () => {
+        if (authCallback) {
+          authCallback('SIGNED_IN', mockSession);
+        }
+      });
 
       await waitFor(() => {
         expect(result.current.session).toBeTruthy();
