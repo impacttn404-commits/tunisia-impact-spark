@@ -157,8 +157,7 @@ describe('useAuth', () => {
 
   describe('updateProfile', () => {
     it('should update user profile successfully', async () => {
-      const mockUpdate = vi.fn().mockResolvedValue({ error: null });
-      const mockEq = vi.fn().mockReturnValue(mockUpdate);
+      const mockEq = vi.fn().mockResolvedValue({ error: null });
       const mockFrom = vi.mocked(supabase.from);
       mockFrom.mockReturnValue({
         update: vi.fn().mockReturnValue({ eq: mockEq }),
