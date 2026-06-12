@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface PageHeaderProps {
   title: string;
@@ -14,12 +14,13 @@ const PageHeader = ({ title, description }: PageHeaderProps) => {
     <header className="bg-card border-b border-border sticky top-0 z-10">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
-          <h1 
-            onClick={() => navigate('/')} 
+          <Link
+            to="/"
             className="text-xl font-bold bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition-opacity"
+            aria-label="Retour à l'accueil Impact Tunisia"
           >
             Impact Tunisia
-          </h1>
+          </Link>
           <Button 
             variant="ghost" 
             size="sm"

@@ -43,7 +43,7 @@ export const marketplaceProductSchema = z.object({
 })
 .refine(
   (data) => {
-    return data.price_tnd !== null || data.price_tokens !== null;
+    return data.price_tnd != null || data.price_tokens != null;
   },
   {
     message: "Au moins un prix (TND ou tokens) doit être défini",

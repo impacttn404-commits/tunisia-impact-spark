@@ -1,10 +1,18 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import LandingPage from '@/pages/LandingPage';
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(<BrowserRouter>{component}</BrowserRouter>);
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>{component}</BrowserRouter>
+    </QueryClientProvider>
+  );
 };
 
 describe('SEO Tests', () => {
@@ -68,10 +76,10 @@ describe('SEO Tests', () => {
 
   describe('Content Optimization', () => {
     it('should have descriptive text content', () => {
-      const { getByText } = renderWithRouter(<LandingPage />);
+      const { getByText, getAllByText } = renderWithRouter(<LandingPage />);
       
       expect(getByText(/Rejoignez la communauté/i)).toBeInTheDocument();
-      expect(getByText(/impact social/i)).toBeInTheDocument();
+      expect(getAllByText(/impact social/i).length).toBeGreaterThan(0);
     });
 
     it('should have call-to-action buttons with descriptive labels', () => {

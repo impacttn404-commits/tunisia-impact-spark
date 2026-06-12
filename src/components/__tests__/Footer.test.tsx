@@ -51,19 +51,19 @@ describe('Footer', () => {
 
   it('should have no duplicate keys for navigation links', () => {
     const { container } = renderWithRouter(<Footer />);
-    const navigationSection = container.querySelector('div > div > div:first-child ul');
+    const navigationSection = container.querySelector('nav[aria-label="Navigation du pied de page"] ul');
     const listItems = navigationSection?.querySelectorAll('li');
     
-    // Vérifier que tous les éléments sont rendus (8 liens de navigation)
+    // 8 liens de navigation
     expect(listItems?.length).toBe(8);
   });
 
   it('should have no duplicate keys for legal links', () => {
     const { container } = renderWithRouter(<Footer />);
-    const legalSection = container.querySelector('div > div > div:nth-child(2) ul');
+    const legalSection = container.querySelector('nav[aria-label="Informations légales"] ul');
     const listItems = legalSection?.querySelectorAll('li');
     
-    // Vérifier que tous les éléments sont rendus (4 liens légaux)
+    // 4 liens légaux
     expect(listItems?.length).toBe(4);
   });
 });

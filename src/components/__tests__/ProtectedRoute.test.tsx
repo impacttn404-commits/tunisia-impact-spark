@@ -1,27 +1,35 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: vi.fn(),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+import { useAuth } from '@/hooks/useAuth';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import * as useAuthModule from '@/hooks/useAuth';
+
+const mockedUseAuth = vi.mocked(useAuth);
 
 const renderWithRouter = (component: React.ReactElement) => {
   return render(
-    <BrowserRouter>
+    <MemoryRouter initialEntries={['/']}>
       <Routes>
         <Route path="/" element={component} />
         <Route path="/auth" element={<div>Auth Page</div>} />
       </Routes>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 
 describe('ProtectedRoute', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockedUseAuth.mockReset();
   });
 
   it('should show loading state when loading', () => {
-    vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
+    mockedUseAuth.mockReturnValue({
       user: null,
       session: null,
       profile: null,
@@ -30,19 +38,19 @@ describe('ProtectedRoute', () => {
       signIn: vi.fn(),
       signOut: vi.fn(),
       updateProfile: vi.fn(),
-    });
+    } as any);
 
     const { getByText } = renderWithRouter(
       <ProtectedRoute>
         <div>Protected Content</div>
       </ProtectedRoute>
     );
-    
+
     expect(getByText('Chargement...')).toBeInTheDocument();
   });
 
   it('should redirect to /auth when user is not authenticated', () => {
-    vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
+    mockedUseAuth.mockReturnValue({
       user: null,
       session: null,
       profile: null,
@@ -51,7 +59,7 @@ describe('ProtectedRoute', () => {
       signIn: vi.fn(),
       signOut: vi.fn(),
       updateProfile: vi.fn(),
-    });
+    } as any);
 
     const { queryByText } = renderWithRouter(
       <ProtectedRoute>
@@ -63,7 +71,7 @@ describe('ProtectedRoute', () => {
   });
 
   it('should render children when user is authenticated', () => {
-    vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
+    mockedUseAuth.mockReturnValue({
       user: { id: 'user-123' } as any,
       session: { access_token: 'token' } as any,
       profile: {
@@ -78,7 +86,7 @@ describe('ProtectedRoute', () => {
       signIn: vi.fn(),
       signOut: vi.fn(),
       updateProfile: vi.fn(),
-    });
+    } as any);
 
     const { getByText } = renderWithRouter(
       <ProtectedRoute>
@@ -90,7 +98,7 @@ describe('ProtectedRoute', () => {
   });
 
   it('should redirect when user does not have required role', () => {
-    vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
+    mockedUseAuth.mockReturnValue({
       user: { id: 'user-123' } as any,
       session: { access_token: 'token' } as any,
       profile: {
@@ -105,7 +113,7 @@ describe('ProtectedRoute', () => {
       signIn: vi.fn(),
       signOut: vi.fn(),
       updateProfile: vi.fn(),
-    });
+    } as any);
 
     const { queryByText } = renderWithRouter(
       <ProtectedRoute requiredRole="investor">
@@ -117,7 +125,7 @@ describe('ProtectedRoute', () => {
   });
 
   it('should render children when user has required role', () => {
-    vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
+    mockedUseAuth.mockReturnValue({
       user: { id: 'user-123' } as any,
       session: { access_token: 'token' } as any,
       profile: {
@@ -132,7 +140,7 @@ describe('ProtectedRoute', () => {
       signIn: vi.fn(),
       signOut: vi.fn(),
       updateProfile: vi.fn(),
-    });
+    } as any);
 
     const { getByText } = renderWithRouter(
       <ProtectedRoute requiredRole="investor">

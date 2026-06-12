@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { ReactNode } from 'react';
@@ -24,6 +24,27 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 describe('useAuth', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Restore default auth + query mocks so per-test overrides don't leak between tests
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: null },
+      error: null,
+    } as any);
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: null },
+      error: null,
+    } as any);
+    vi.mocked(supabase.auth.onAuthStateChange).mockImplementation(
+      ((callback: any) => {
+        if (typeof callback === 'function') {
+          queueMicrotask(() => callback('INITIAL_SESSION', null));
+        }
+        return {
+          data: {
+            subscription: { id: 'mock', callback, unsubscribe: vi.fn() },
+          },
+        };
+      }) as any
+    );
   });
 
   describe('signUp', () => {
@@ -157,23 +178,32 @@ describe('useAuth', () => {
 
   describe('updateProfile', () => {
     it('should update user profile successfully', async () => {
-      const mockUpdate = vi.fn().mockResolvedValue({ error: null });
-      const mockEq = vi.fn().mockReturnValue(mockUpdate);
+      const mockEq = vi.fn().mockResolvedValue({ error: null });
       const mockFrom = vi.mocked(supabase.from);
       mockFrom.mockReturnValue({
         update: vi.fn().mockReturnValue({ eq: mockEq }),
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+          }),
+        }),
       } as any);
 
-      const mockGetUser = vi.mocked(supabase.auth.getUser);
-      mockGetUser.mockResolvedValue({
-        data: { user: { id: 'user-123' } as any },
+      const mockGetSession = vi.mocked(supabase.auth.getSession);
+      mockGetSession.mockResolvedValue({
+        data: {
+          session: {
+            user: { id: 'user-123' } as any,
+            access_token: 'token',
+          } as any,
+        },
         error: null,
-      });
+      } as any);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
       await waitFor(() => {
-        expect(result.current.loading).toBe(false);
+        expect(result.current.user).not.toBeNull();
       });
 
       const updateData = { first_name: 'Jane', last_name: 'Smith' };
@@ -235,10 +265,17 @@ describe('useAuth', () => {
         access_token: 'token',
       };
 
+      // Wait for initial getSession to resolve so it doesn't overwrite our update
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
       // Simulate auth state change
-      if (authCallback) {
-        authCallback('SIGNED_IN', mockSession);
-      }
+      await act(async () => {
+        if (authCallback) {
+          authCallback('SIGNED_IN', mockSession);
+        }
+      });
 
       await waitFor(() => {
         expect(result.current.session).toBeTruthy();
