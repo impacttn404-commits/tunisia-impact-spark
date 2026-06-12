@@ -265,6 +265,11 @@ describe('useAuth', () => {
         access_token: 'token',
       };
 
+      // Wait for initial getSession to resolve so it doesn't overwrite our update
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
       // Simulate auth state change
       await act(async () => {
         if (authCallback) {
