@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(),
@@ -14,12 +14,12 @@ const mockedUseAuth = vi.mocked(useAuth);
 
 const renderWithRouter = (component: React.ReactElement) => {
   return render(
-    <BrowserRouter>
+    <MemoryRouter initialEntries={['/']}>
       <Routes>
         <Route path="/" element={component} />
         <Route path="/auth" element={<div>Auth Page</div>} />
       </Routes>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 
